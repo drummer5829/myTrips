@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v48 -->
+<!-- myTrips v49 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v48</title>
+<title>myTrips v49</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2242,13 +2242,59 @@
     .user-badge { width: 30px; height: 30px; line-height: 30px; }
     .user-badge::first-letter { font-size: 0.8rem; }
   }
+
+  /* ══ v49 ══ */
+  .day-photo-grid .photo-box { width: 64px !important; height: 52px !important; font-size: 1.15rem; border-width: 1.5px; align-self: flex-start; }
+  .summary-danger-row { display: flex; justify-content: flex-start; padding-top: 18px; margin-top: 6px; border-top: 1px solid var(--border); }
+  .entry-time { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; color: var(--accent-dark, var(--accent)); margin-bottom: 2px; }
+  .field-opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .time-input { max-width: 160px; }
+  .btn-duplicate { margin-right: auto; }
+  .btn-duplicate[hidden] { display: none !important; }
+  .day-photo-del.confirming { opacity: 1 !important; width: auto !important; border-radius: 10px; padding: 0 8px; font-size: 0.72rem; background: #c44; }
+  .app-toast { display: flex; align-items: center; gap: 14px; }
+  .toast-action { min-width: 0 !important; background: none; border: 1px solid rgba(255,255,255,0.4); color: #fff; border-radius: 6px;
+    padding: 4px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+  .app-toast.show { pointer-events: auto; }
+  .card.flash { box-shadow: 0 0 0 3px var(--accent); transition: box-shadow 0.3s; }
+  /* Search */
+  .search-btn { margin-left: auto; margin-right: 12px; width: 36px; height: 36px; min-width: 0 !important; padding: 0; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .search-btn:hover { border-color: var(--accent); }
+  .search-overlay { position: fixed; inset: 0; z-index: 9200; background: rgba(0,0,0,0.35); display: flex; justify-content: center; align-items: flex-start;
+    padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); box-sizing: border-box; }
+  .search-overlay[hidden] { display: none; }
+  .search-panel { width: 560px; max-width: 100%; max-height: 100%; display: flex; flex-direction: column; background: var(--surface); border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden; }
+  .search-bar { display: flex; gap: 8px; padding: 12px; border-bottom: 1px solid var(--border); }
+  .search-bar input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 16px; background: var(--bg); color: var(--text); outline: none; }
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-close { min-width: 0 !important; background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; padding: 0 6px; }
+  .search-results { overflow-y: auto; padding: 6px; }
+  .search-result { display: flex; flex-direction: column; gap: 2px; width: 100% !important; min-width: 0 !important; text-align: left; background: none; border: none;
+    border-radius: 8px; padding: 10px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text); }
+  .search-result:hover, .search-result:focus-visible { background: var(--bg); }
+  .sr-meta { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; }
+  .sr-title { font-size: 0.95rem; font-weight: 600; }
+  .sr-snip { font-size: 0.82rem; color: var(--text-muted); overflow-wrap: anywhere; }
+  .search-result mark { background: rgba(200,169,110,0.35); color: inherit; border-radius: 2px; padding: 0 1px; }
+  .search-hint { font-size: 0.85rem; color: var(--text-muted); padding: 10px 12px; margin: 0; }
+  @media (max-width: 760px) {
+    .day-photo-grid .photo-box { width: 56px !important; height: 44px !important; }
+    .search-btn { width: 30px; height: 30px; margin-right: 8px; }
+    .search-btn svg { width: 15px; height: 15px; }
+    .search-overlay { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+  }
+  @media (hover: none) { .day-photo-del { opacity: 0.85; } }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v48</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v49</span></h1>
+  <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
   <div class="user-badge" id="userBadge" onclick="showAccountView()">Matt</div>
 </header>
 
@@ -2368,6 +2414,8 @@
 
       <label class="field-label">Location</label>
       <input type="text" id="mealLocationDetail" placeholder="e.g. Intendente, Lisbon" maxlength="100" class="meal-input" />
+      <label class="field-label">Time <span class="field-opt">(optional)</span></label>
+      <input type="time" id="mealTime" class="meal-input time-input" />
 
       <label class="field-label">Details</label>
       <textarea id="mealDetails" placeholder="What did everyone order? Any notes..." class="meal-textarea" rows="4"></textarea>
@@ -2385,6 +2433,7 @@
       <label class="field-label" id="mealDayLabel" style="display:none;">Edit Date</label>
       <input type="date" id="mealDayInput" class="meal-date-input" style="display:none;" />
       <div class="modal-actions">
+        <button class="btn-cancel btn-duplicate" id="mealDupBtn" type="button" onclick="duplicateEntry('food')" hidden>Duplicate</button>
         <button class="btn-cancel" onclick="closeMealModal()">Cancel</button>
         <button class="btn-create" id="mealModalSaveBtn" onclick="saveMealEntry()">Add</button>
       </div>
@@ -2449,6 +2498,8 @@
 
       <label class="field-label">Location</label>
       <input type="text" id="activityLocation" placeholder="e.g. Monsanto, Lisbon" maxlength="100" class="meal-input" />
+      <label class="field-label">Time <span class="field-opt">(optional)</span></label>
+      <input type="time" id="activityTime" class="meal-input time-input" />
 
       <label class="field-label">Description</label>
       <textarea id="activityDescription" placeholder="Notes about the activity..." class="meal-textarea" rows="3"></textarea>
@@ -2475,6 +2526,7 @@
       <label class="field-label" id="activityDayLabel" style="display:none;">Edit Date</label>
       <input type="date" id="activityDayInput" class="meal-date-input" style="display:none;" />
       <div class="modal-actions">
+        <button class="btn-cancel btn-duplicate" id="activityDupBtn" type="button" onclick="duplicateEntry('activity')" hidden>Duplicate</button>
         <button class="btn-cancel" onclick="closeActivityModal()">Cancel</button>
         <button class="btn-create" id="activityModalSaveBtn" onclick="saveActivityEntry()">Add</button>
       </div>
@@ -2495,6 +2547,8 @@
 
       <label class="field-label">Location</label>
       <input type="text" id="placesLocation" placeholder="e.g. Belém, Lisbon" maxlength="80" class="meal-input" />
+      <label class="field-label">Time <span class="field-opt">(optional)</span></label>
+      <input type="time" id="placesTime" class="meal-input time-input" />
 
       <label class="field-label">Details</label>
       <textarea id="placesDetails" placeholder="Notes, hours, tips..." class="meal-textarea" rows="4"></textarea>
@@ -2510,6 +2564,7 @@
       <label class="field-label" id="placesDayLabel" style="display:none;">Edit Date</label>
       <input type="date" id="placesDayInput" class="meal-date-input" style="display:none;" />
       <div class="modal-actions">
+        <button class="btn-cancel btn-duplicate" id="placesDupBtn" type="button" onclick="duplicateEntry('place')" hidden>Duplicate</button>
         <button class="btn-cancel" onclick="closePlacesModal()">Cancel</button>
         <button class="btn-create" id="placesModalSaveBtn" onclick="savePlacesEntry()">Add</button>
       </div>
@@ -3773,13 +3828,14 @@
   }
 
   function _cardInfoHtml(kind, item) {
+    const timeHtml = item.time ? `<div class="entry-time">${esc(_fmtTime(item.time))}</div>` : '';
     const loc = item.location ? `<p class="lodging-location">${esc(item.location)}</p>` : '';
     if (kind === 'activity') {
       const desc = (item.description || '').split('\n').filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('');
       const dur = _durationText(item);
       const dist = item.distance ? `<div class="stat"><span>Distance:</span> ${esc(item.distance)}</div>` : '';
       const durHtml = dur !== '—' ? `<div class="stat"><span>Duration:</span> ${esc(dur)}</div>` : '';
-      return `<h3>${esc(item.name)}</h3>${loc}${desc}${dist}${durHtml}`;
+      return `${timeHtml}<h3>${esc(item.name)}</h3>${loc}${desc}${dist}${durHtml}`;
     }
     let badge = '';
     if (kind === 'lodging' && item.checkInIdx != null && item.checkOutIdx != null) {
@@ -3788,7 +3844,7 @@
     const people = (kind === 'food' && item.people && item.people.length)
       ? `<div class="people-tags">${item.people.map(p => `<span class="people-tag">${esc(p)}</span>`).join('')}</div>` : '';
     const details = (item.details || []).map(d => `<p>${esc(d)}</p>`).join('');
-    return `<h3>${esc(item.name)}</h3>${loc}${badge}${people}${details}`;
+    return `${timeHtml}<h3>${esc(item.name)}</h3>${loc}${badge}${people}${details}`;
   }
 
   // Photos column, sample map, or an upload box — the only place card media is built
@@ -3817,6 +3873,7 @@
   function makeEntryCard(kind, item, array, onDelete) {
     const card = document.createElement('div');
     card.className = 'card';
+    card._item = item;
     const main = document.createElement('div');
     main.className = 'card-main';
     const info = document.createElement('div');
@@ -4024,7 +4081,17 @@
           const del = document.createElement('button');
           del.className = 'day-photo-del';
           del.textContent = '×';
-          del.onclick = e => { e.stopPropagation(); data.photos.splice(idx, 1); renderPhotoGrid(); };
+          del.setAttribute('aria-label', 'Delete photo');
+          del.onclick = e => {
+            e.stopPropagation();
+            if (del.classList.contains('confirming')) {
+              _withUndo('Photo deleted', () => { data.photos.splice(idx, 1); });
+              renderPhotoGrid();
+            } else {
+              del.classList.add('confirming'); del.textContent = 'Delete?';
+              setTimeout(() => { del.classList.remove('confirming'); del.textContent = '×'; }, 2500);
+            }
+          };
           wrap.appendChild(img);
           wrap.appendChild(del);
           grid.appendChild(wrap);
@@ -4142,7 +4209,7 @@
         const addBtn = body.querySelector('.add-btn');
         const current = getLodgingForDay(activeTrip, activeDay);
         current.forEach(item => {
-          const nightDelete = () => {
+          const nightDelete = () => _withUndo('Night removed', () => {
             const ci = item.checkInIdx, co = item.checkOutIdx;
             if (ci === co) {
               const idx = tripLodgingArr.indexOf(item);
@@ -4155,7 +4222,7 @@
               item.checkOutIdx = activeDay - 1;
             }
             renderLodgingCards();
-          };
+          });
           const card = makeLodgingCard(item, null, null);
           card.style.display = 'flex'; card.style.alignItems = 'flex-start';
           card.insertBefore(makeReorderActions(tripLodgingArr, item, renderLodgingCards), card.firstChild);
@@ -4295,6 +4362,7 @@
       overlay.onclick = e => { if (e.target === overlay) document.body.removeChild(overlay); };
       document.getElementById('_delConfirmBtn').onclick = () => {
         document.body.removeChild(overlay);
+        const _tripSnap = _snapshotTrip(tripId);
         // Remove trip from all stores
         delete trips[tripId];
         delete allTripData[tripId];
@@ -4308,6 +4376,11 @@
         // Save and navigate to account page
         _saveToIDB();
         showAccountView();
+        _toast('Trip deleted', { action: 'Undo', duration: 5000, onAction: () => {
+          _restoreTrip(_tripSnap); sortTrips(document.getElementById('tripSortSelect').value || 'newest');
+          const tb = document.querySelector(`#group-${tripId} .trip-btn`); if (tb) showTripSummary(tb, tripId);
+          _saveToIDB();
+        }});
       };
     };
 
@@ -4418,7 +4491,7 @@
         del.dataset.confirming = 'false';
         del.onclick = () => {
           if (del.dataset.confirming === 'true') {
-            meta.travelers.splice(idx, 1);
+            _withUndo('Traveler removed', () => { meta.travelers.splice(idx, 1); }, tripId);
             refreshTravelerTags();
           } else {
             del.dataset.confirming = 'true';
@@ -4470,10 +4543,7 @@
     titleRow.style.cssText = 'display:flex; align-items:baseline; justify-content:space-between; gap:12px;';
     titleRow.appendChild(titleInput);
     titleInput.style.flex = '1';
-    const actionBtns = document.createElement('div');
-    actionBtns.style.cssText = 'display:flex; gap:6px; align-items:center; flex-shrink:0;';
-    actionBtns.appendChild(deleteBtn);
-    titleRow.appendChild(actionBtns);
+
 
     hero.appendChild(titleRow);
     hero.appendChild(dateRange);
@@ -4648,11 +4718,16 @@
         scrollBody.appendChild(bwGrid);
       }
     }
+    // Delete Trip sits at the very end, below Highlights
+    const dangerRow = document.createElement('div');
+    dangerRow.className = 'summary-danger-row';
+    dangerRow.appendChild(deleteBtn);
+    scrollBody.appendChild(dangerRow);
   }
 
 
   // ── Delete a day from the active trip ──
-  function deleteDay(dayIdx) {
+  function _deleteDayNow(dayIdx) {
     const trip = trips[activeTrip];
     if (trip.totalDays <= 1) return;
 
@@ -4687,6 +4762,11 @@
     activeDay = Math.max(0, Math.min(activeDay, totalDays - 1));
 
     renderAll();
+  }
+
+  function deleteDay(dayIdx) {
+    if (trips[activeTrip].totalDays <= 1) return;
+    _withUndo('Day deleted', () => _deleteDayNow(dayIdx));
   }
 
   // ── Sort sidebar trip groups ──
@@ -5169,6 +5249,7 @@
           if (delBtn.dataset.confirming === 'true') {
             clearTimeout(_bwDelTimer);
             delBtn.dataset.confirming = 'false';
+            const _bwSnap = _snapshotTrip(tripId);
             questions.splice(qIdx, 1);
             const newData = {};
             Object.keys(data).forEach(k => {
@@ -5179,6 +5260,7 @@
             Object.keys(data).forEach(k => delete data[k]);
             Object.assign(data, newData);
             buildTable();
+            _toast('Question deleted', { action: 'Undo', duration: 5000, onAction: () => { _restoreTrip(_bwSnap); _refreshCurrentView(); scheduleSave(); } });
           } else {
             delBtn.dataset.confirming = 'true';
             delBtn.textContent = 'Delete?';
@@ -5738,6 +5820,83 @@
     _toast(msg);
   }
 
+
+  // ══ Form readers: one place that turns each entry form into data ══
+  function _mealFields() {
+    const name = document.getElementById('mealLocation').value.trim();
+    const details = document.getElementById('mealDetails').value.trim();
+    if (!name && !details && mealModal_images.length === 0) return null;
+    return {
+      name: name || '(no name)',
+      location: document.getElementById('mealLocationDetail').value.trim(),
+      time: document.getElementById('mealTime').value || '',
+      details: details ? details.split('\n').filter(l => l.trim()) : [],
+      images: mealModal_images.map(i => i.dataUrl),
+      people: _selectedPeople()
+    };
+  }
+  function _activityFields() {
+    const name = document.getElementById('activityName').value.trim();
+    if (!name) return null;
+    return {
+      name,
+      location: document.getElementById('activityLocation').value.trim(),
+      time: document.getElementById('activityTime').value || '',
+      description: document.getElementById('activityDescription').value.trim(),
+      distance: document.getElementById('activityDistance').value.trim(),
+      durationH: document.getElementById('activityDurationH').value.trim(),
+      durationM: document.getElementById('activityDurationM').value.trim(),
+      images: activityModal_images.map(i => i.dataUrl)
+    };
+  }
+  function _placeFields() {
+    const name = document.getElementById('placesName').value.trim();
+    const location = document.getElementById('placesLocation').value.trim();
+    const details = document.getElementById('placesDetails').value.trim();
+    if (!name && !location && !details && placesModal_images.length === 0) return null;
+    return {
+      name: name || '(no name)',
+      location,
+      time: document.getElementById('placesTime').value || '',
+      details: details.split('\n').filter(l => l.trim()),
+      images: placesModal_images.map(i => i.dataUrl)
+    };
+  }
+
+  // ══ Times: entries with a time sit in time order; untimed entries keep their place ══
+  function _fmtTime(t) {
+    const m = /^(\d{1,2}):(\d{2})/.exec(t || ''); if (!m) return '';
+    let hh = +m[1]; const ap = hh >= 12 ? 'PM' : 'AM'; hh = hh % 12 || 12;
+    return `${hh}:${m[2]} ${ap}`;
+  }
+  function _insertByTime(arr, item) {
+    const i0 = arr.indexOf(item); if (i0 !== -1) arr.splice(i0, 1);
+    if (!item.time) { arr.splice(i0 === -1 ? arr.length : i0, 0, item); return; }
+    const j = arr.findIndex(x => x.time && x.time > item.time);
+    if (j === -1) arr.push(item); else arr.splice(j, 0, item);
+  }
+
+  // ══ Duplicate the entry being edited onto the date in its Edit Date field ══
+  function duplicateEntry(kind) {
+    let fields, inputId, targetOf, closeFn;
+    if (kind === 'food') { fields = _mealFields(); const mk = mealModal_meal; inputId = 'mealDayInput'; targetOf = d => d.food[mk]; closeFn = closeMealModal; }
+    else if (kind === 'activity') { fields = _activityFields(); inputId = 'activityDayInput'; targetOf = d => d.activities; closeFn = closeActivityModal; }
+    else { fields = _placeFields(); inputId = 'placesDayInput'; targetOf = d => d.places; closeFn = closePlacesModal; }
+    if (!fields) return;
+    const copy = JSON.parse(JSON.stringify(fields));
+    if (kind === 'activity') copy.hasMap = false;
+    const el = document.getElementById(inputId);
+    const newDay = el && el.value ? _dayIdxFromInput(el.value) : _editDayIdx;
+    const go = () => {
+      closeFn();
+      _moveEntryToDay(copy, null, newDay, targetOf);
+      const at = _locateEntry(copy).dayIdx;
+      _toast('Duplicated to ' + formatDate(dateForIndex(at)));
+    };
+    if (newDay >= 0 && newDay < trips[activeTrip].totalDays) go();
+    else _promptAddDay(el.value, go);
+  }
+
   // ══ One path for "data changed → refresh what's on screen" ══
   let _viewRerender = null;
   function _afterChange() {
@@ -5788,7 +5947,7 @@
     if (i !== -1) fromArray.splice(i, 1);
     if (newDay < 0) { _extendTripBack(-newDay); newDay = 0; }
     else if (newDay >= trips[activeTrip].totalDays) trips[activeTrip].totalDays = newDay + 1;
-    targetOf(ensureDaySkeleton(activeTrip, newDay)).push(item);
+    _insertByTime(targetOf(ensureDaySkeleton(activeTrip, newDay)), item);
     _syncTripGlobals();
     if (currentView === 'day') activeDay = newDay;
     renderDateTabs();
@@ -5808,11 +5967,53 @@
   }
 
   // Small confirmation toast
-  function _toast(msg) {
+  function _toast(msg, opts) {
+    opts = opts || {};
     let t = document.getElementById('appToast');
-    if (!t) { t = document.createElement('div'); t.id = 'appToast'; t.className = 'app-toast'; document.body.appendChild(t); }
-    t.textContent = msg; t.classList.add('show');
-    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 3200);
+    if (!t) { t = document.createElement('div'); t.id = 'appToast'; t.className = 'app-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.innerHTML = '';
+    const span = document.createElement('span'); span.textContent = msg; t.appendChild(span);
+    if (opts.action) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'toast-action'; b.textContent = opts.action;
+      b.onclick = () => { t.classList.remove('show'); clearTimeout(t._h); opts.onAction && opts.onAction(); };
+      t.appendChild(b);
+    }
+    t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), opts.duration || 3200);
+  }
+
+
+  // ══ Undo: every delete snapshots the trip first, then offers a 5-second Undo ══
+  function _snapshotTrip(id) {
+    return structuredClone({ id, trip: trips[id], data: allTripData[id], lodging: allTripLodging[id],
+      meta: allTripMeta[id], bw: allBestWorstData[id], bwq: allBWQuestions[id] });
+  }
+  function _restoreTrip(s) {
+    const id = s.id;
+    trips[id] = s.trip;
+    allTripData[id] = s.data || {};
+    allTripLodging[id] = s.lodging || [];
+    const put = (store, v) => { if (v === undefined) delete store[id]; else store[id] = v; };
+    put(allTripMeta, s.meta); put(allBestWorstData, s.bw); put(allBWQuestions, s.bwq);
+    if (id === activeTrip) { _syncTripGlobals(); activeDay = Math.min(activeDay, trips[id].totalDays - 1); }
+    _syncSidebarGroups();
+  }
+  function _refreshCurrentView() {
+    const id = activeTrip, sub = document.getElementById('subnav-' + id);
+    if (currentView === 'summary') { const tb = document.querySelector(`#group-${id} .trip-btn`); if (tb) showTripSummary(tb, id); }
+    else if (currentView === 'bestworst' && sub) sub.children[3].click();
+    else if (currentView === 'photos' && sub) sub.children[2].click();
+    else { if (currentView === 'day') renderDateTabs(); _afterChange(); }
+  }
+  function _withUndo(label, fn, tripId) {
+    const snap = _snapshotTrip(tripId || activeTrip);
+    fn();
+    _toast(label, { action: 'Undo', duration: 5000, onAction: () => {
+      _restoreTrip(snap);
+      _refreshCurrentView();
+      if (typeof scheduleSave === 'function') scheduleSave();
+      _toast('Restored');
+    }});
   }
 
   function makeReorderActions(array, item, onRerender) {
@@ -5878,8 +6079,7 @@
   }
 
   function deleteCard(cardEl, array, item, onRerender) {
-    const idx = array.indexOf(item);
-    if (idx !== -1) array.splice(idx, 1);
+    _withUndo('Entry deleted', () => { const idx = array.indexOf(item); if (idx !== -1) array.splice(idx, 1); });
     cardEl.style.transition = 'opacity 0.2s, transform 0.2s';
     cardEl.style.opacity = '0';
     cardEl.style.transform = 'translateX(8px)';
@@ -5947,6 +6147,8 @@
     const di = document.getElementById('mealDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
     document.getElementById('mealLocation').value = item.name || '';
     document.getElementById('mealLocationDetail').value = item.location || '';
+    document.getElementById('mealTime').value = item.time || '';
+    document.getElementById('mealDupBtn').hidden = false;
     document.getElementById('mealDetails').value = (item.details || []).join('\n');
     document.getElementById('mealImageInput').value = '';
     _renderPeopleChips(item.people || []);
@@ -5972,6 +6174,8 @@
     const di = document.getElementById('activityDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
     document.getElementById('activityName').value = act.name || '';
     document.getElementById('activityLocation').value = act.location || '';
+    document.getElementById('activityTime').value = act.time || '';
+    document.getElementById('activityDupBtn').hidden = false;
     document.getElementById('activityDescription').value = act.description || '';
     document.getElementById('activityDistance').value = act.distance || '';
     if (!act.durationH && !act.durationM && act.duration) {
@@ -6138,36 +6342,29 @@
   }
 
   function closeActivityModal() {
+    document.getElementById('activityTime').value = ''; document.getElementById('activityDupBtn').hidden = true;
     document.getElementById('activityModalOverlay').classList.remove('open');
     activityModal_editItem = null;
     activityModal_catRerender = null;
   }
 
   function saveActivityEntry() {
-    const name = document.getElementById('activityName').value.trim();
-    if (!name) return;
-    const fields = {
-      name,
-      location: document.getElementById('activityLocation').value.trim(),
-      description: document.getElementById('activityDescription').value.trim(),
-      distance: document.getElementById('activityDistance').value.trim(),
-      durationH: document.getElementById('activityDurationH').value.trim(),
-      durationM: document.getElementById('activityDurationM').value.trim(),
-      images: activityModal_images.map(i => i.dataUrl)
-    };
-
+    const fields = _activityFields();
+    if (!fields) return;
     const item = activityModal_editItem;
     if (item) {
-      if (_handleEditDate('activityDayInput', item, activityModal_array, d => d.activities,
+      const arr = activityModal_array;
+      if (_handleEditDate('activityDayInput', item, arr, d => d.activities,
             () => Object.assign(item, fields), closeActivityModal)) return;
+      const timeChanged = (item.time || '') !== fields.time;
       Object.assign(item, fields);
+      if (timeChanged && arr) _insertByTime(arr, item);
       closeActivityModal();
       _afterChange();
       return;
     }
-
     const rerender = activityModal_catRerender;
-    (activityModal_array || ensureDaySkeleton(activeTrip, activeDay).activities).push({ ...fields, hasMap: false });
+    _insertByTime(activityModal_array || ensureDaySkeleton(activeTrip, activeDay).activities, { ...fields, hasMap: false });
     closeActivityModal();
     if (rerender) rerender(); else _afterChange();
   }
@@ -6210,35 +6407,29 @@
   }
 
   function closePlacesModal() {
+    document.getElementById('placesTime').value = ''; document.getElementById('placesDupBtn').hidden = true;
     document.getElementById('placesModalOverlay').classList.remove('open');
     placesModal_editItem = null;
     placesModal_catRerender = null;
   }
 
   function savePlacesEntry() {
-    const name     = document.getElementById('placesName').value.trim();
-    const location = document.getElementById('placesLocation').value.trim();
-    const details  = document.getElementById('placesDetails').value.trim();
-    if (!name && !location && !details && placesModal_images.length === 0) return;
-    const fields = {
-      name: name || '(no name)',
-      location,
-      details: details.split('\n').filter(l => l.trim()),
-      images: placesModal_images.map(i => i.dataUrl)
-    };
-
+    const fields = _placeFields();
+    if (!fields) return;
     const item = placesModal_editItem;
     if (item) {
-      if (_handleEditDate('placesDayInput', item, placesModal_array, d => d.places,
+      const arr = placesModal_array;
+      if (_handleEditDate('placesDayInput', item, arr, d => d.places,
             () => Object.assign(item, fields), closePlacesModal)) return;
+      const timeChanged = (item.time || '') !== fields.time;
       Object.assign(item, fields);
+      if (timeChanged && arr) _insertByTime(arr, item);
       closePlacesModal();
       _afterChange();
       return;
     }
-
     const rerender = placesModal_catRerender;
-    (placesModal_array || ensureDaySkeleton(activeTrip, activeDay).places).push(fields);
+    _insertByTime(placesModal_array || ensureDaySkeleton(activeTrip, activeDay).places, fields);
     closePlacesModal();
     if (rerender) rerender(); else _afterChange();
   }
@@ -6257,6 +6448,8 @@
     const di = document.getElementById('placesDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
     document.getElementById('placesName').value     = item.name || '';
     document.getElementById('placesLocation').value = item.location || '';
+    document.getElementById('placesTime').value = item.time || '';
+    document.getElementById('placesDupBtn').hidden = false;
     document.getElementById('placesDetails').value  = (item.details || []).join('\n');
     document.getElementById('placesImageInput').value = '';
     const grid = document.getElementById('placesImagePreviewGrid');
@@ -6311,6 +6504,7 @@
   }
 
   function closeMealModal() {
+    document.getElementById('mealTime').value = ''; document.getElementById('mealDupBtn').hidden = true;
     document.getElementById('mealModalOverlay').classList.remove('open');
     mealModal_editItem = null;
     mealModal_catDay = null;
@@ -6319,35 +6513,25 @@
   }
 
   function saveMealEntry() {
-    const name = document.getElementById('mealLocation').value.trim();
-    const location = document.getElementById('mealLocationDetail').value.trim();
-    const details = document.getElementById('mealDetails').value.trim();
-    if (!name && !details && mealModal_images.length === 0) return;
-    const fields = {
-      name: name || '(no name)',
-      location,
-      details: details ? details.split('\n').filter(l => l.trim()) : [],
-      images: mealModal_images.map(i => i.dataUrl),
-      people: _selectedPeople()
-    };
-
+    const fields = _mealFields();
+    if (!fields) return;
     const item = mealModal_editItem;
     if (item) {
-      const mealKey = mealModal_meal;
-      if (_handleEditDate('mealDayInput', item, mealModal_array, d => d.food[mealKey],
+      const mealKey = mealModal_meal, arr = mealModal_array;
+      if (_handleEditDate('mealDayInput', item, arr, d => d.food[mealKey],
             () => Object.assign(item, fields), closeMealModal)) return;
+      const timeChanged = (item.time || '') !== fields.time;
       Object.assign(item, fields);
+      if (timeChanged && arr) _insertByTime(arr, item);
       closeMealModal();
       _afterChange();
       return;
     }
-
     const rerender = mealModal_catRerender;
-    if (mealModal_catDay) {
-      mealModal_catDay.food[document.getElementById('mealTypeSelect').value].push(fields);
-    } else {
-      (mealModal_array || ensureDaySkeleton(activeTrip, activeDay).food[mealModal_meal]).push(fields);
-    }
+    const arr = mealModal_catDay
+      ? mealModal_catDay.food[document.getElementById('mealTypeSelect').value]
+      : (mealModal_array || ensureDaySkeleton(activeTrip, activeDay).food[mealModal_meal]);
+    _insertByTime(arr, fields);
     closeMealModal();
     if (rerender) rerender(); else _afterChange();
   }
@@ -7034,6 +7218,122 @@
     }
     showAccountView();
   }
+
+
+  // ══ Swipe left/right on Daily to change day ══
+  function _goDay(i) {
+    if (!trips[activeTrip] || i < 0 || i >= trips[activeTrip].totalDays) return;
+    activeDay = i;
+    renderDateTabs();
+    document.querySelector('.date-tab.active')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    renderDayContent();
+    document.getElementById('dayContent').scrollTop = 0;
+  }
+  (() => {
+    const dc = document.getElementById('dayContent');
+    let sx = 0, sy = 0, st = 0, ok = false;
+    dc.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) { ok = false; return; }
+      const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now();
+      ok = !e.target.closest('input, textarea, select, [contenteditable]');
+    }, { passive: true });
+    dc.addEventListener('touchend', e => {
+      if (!ok || currentView !== 'day') return;
+      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Date.now() - st > 700 || Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.5) return;
+      if (document.querySelector('.modal-overlay.open')) return;
+      _goDay(activeDay + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  })();
+
+  // ══ Search across all trips ══
+  function _searchIndex() {
+    const rows = [];
+    const fmt = (id, i) => { const d = new Date(_ensureDateObj(trips[id].start)); d.setDate(d.getDate() + i); return `${months[d.getMonth()].slice(0, 3)} ${d.getDate()}, ${d.getFullYear()}`; };
+    const kindLabel = { food: 'Meal', activity: 'Activity', place: 'Place', lodging: 'Stay', day: 'Day' };
+    Object.keys(trips).forEach(id => {
+      const tripName = (allTripMeta[id] && allTripMeta[id].title) || trips[id].name;
+      const days = allTripData[id] || {};
+      Object.keys(days).forEach(k => {
+        const d = days[k]; if (!d) return; const i = +k;
+        const dayText = [d.title, d.subtitle, d.journal].filter(Boolean);
+        if (dayText.length) rows.push({ id, i, kind: 'day', title: d.title || 'Journal', fields: dayText, tripName, date: fmt(id, i) });
+        MEAL_KEYS.forEach(mk => (d.food && d.food[mk] || []).forEach(it => rows.push({ id, i, kind: 'food', sub: mk, item: it, title: it.name, fields: [it.name, it.location, ...(it.details || []), ...(it.people || [])], tripName, date: fmt(id, i) })));
+        (d.activities || []).forEach(it => rows.push({ id, i, kind: 'activity', item: it, title: it.name, fields: [it.name, it.location, it.description], tripName, date: fmt(id, i) }));
+        (d.places || []).forEach(it => rows.push({ id, i, kind: 'place', item: it, title: it.name, fields: [it.name, it.location, ...(it.details || [])], tripName, date: fmt(id, i) }));
+      });
+      (allTripLodging[id] || []).forEach(it => rows.push({ id, i: it.checkInIdx || 0, kind: 'lodging', item: it, title: it.name, fields: [it.name, it.location, ...(it.details || [])], tripName, date: fmt(id, it.checkInIdx || 0) }));
+      rows.forEach(r => { if (!r.label) r.label = r.kind === 'food' ? (r.sub.charAt(0).toUpperCase() + r.sub.slice(1)) : kindLabel[r.kind]; });
+    });
+    return rows;
+  }
+
+  function _highlight(text, words) {
+    let out = esc(text);
+    words.forEach(w => { if (!w) return; const re = new RegExp('(' + esc(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); out = out.replace(re, '<mark>$1</mark>'); });
+    return out;
+  }
+
+  function _runSearch(q, list) {
+    const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    list.innerHTML = '';
+    if (!words.length) { list.innerHTML = '<p class="search-hint">Search meals, places, activities, stays, people and journal notes across every trip.</p>'; return; }
+    const hits = _searchIndex().filter(r => { const hay = r.fields.filter(Boolean).join(' ').toLowerCase(); return words.every(w => hay.includes(w)); });
+    if (!hits.length) { list.innerHTML = `<p class="search-hint">No matches for “${esc(q)}”.</p>`; return; }
+    hits.slice(0, 80).forEach(r => {
+      const f = r.fields.filter(Boolean).find(x => String(x).toLowerCase().includes(words[0])) || r.fields.filter(Boolean)[0] || '';
+      const s = String(f); const at = Math.max(0, s.toLowerCase().indexOf(words[0]) - 40);
+      const snip = (at > 0 ? '…' : '') + s.slice(at, at + 120) + (s.length > at + 120 ? '…' : '');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'search-result';
+      b.innerHTML = `<span class="sr-meta">${esc(r.tripName)} · ${esc(r.date)} · ${esc(r.label)}</span>
+        <span class="sr-title">${_highlight(r.title || '(no name)', words)}</span>
+        ${snip && snip !== r.title ? `<span class="sr-snip">${_highlight(snip, words)}</span>` : ''}`;
+      b.onclick = () => { closeSearch(); _jumpToEntry(r); };
+      list.appendChild(b);
+    });
+    if (hits.length > 80) list.insertAdjacentHTML('beforeend', `<p class="search-hint">Showing 80 of ${hits.length}. Add a word to narrow it down.</p>`);
+  }
+
+  function _jumpToEntry(r) {
+    const sub = document.getElementById('subnav-' + r.id);
+    showTimelineView(sub ? sub.children[0] : null, r.id);
+    activeDay = Math.max(0, Math.min(r.i, trips[r.id].totalDays - 1));
+    renderDateTabs();
+    document.querySelector('.date-tab.active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+    renderDayContent();
+    const dc = document.getElementById('dayContent');
+    const card = r.item ? [...dc.querySelectorAll('.card')].find(c => c._item === r.item) : null;
+    if (card) { card.scrollIntoView({ block: 'center' }); card.classList.add('flash'); setTimeout(() => card.classList.remove('flash'), 1800); }
+    else dc.scrollTop = 0;
+  }
+
+  function openSearch() {
+    let ov = document.getElementById('searchOverlay');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'searchOverlay'; ov.className = 'search-overlay';
+      ov.innerHTML = `<div class="search-panel" role="dialog" aria-label="Search trips">
+          <div class="search-bar">
+            <input type="search" id="searchInput" placeholder="Search all trips" autocomplete="off" enterkeyhint="search">
+            <button type="button" class="search-close" aria-label="Close search">Close</button>
+          </div>
+          <div class="search-results" id="searchResults"></div>
+        </div>`;
+      document.body.appendChild(ov);
+      const inp = ov.querySelector('#searchInput'), list = ov.querySelector('#searchResults');
+      let tmr = null;
+      inp.addEventListener('input', () => { clearTimeout(tmr); tmr = setTimeout(() => _runSearch(inp.value, list), 120); });
+      ov.querySelector('.search-close').onclick = closeSearch;
+      ov.addEventListener('click', e => { if (e.target === ov) closeSearch(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !ov.hidden) closeSearch(); });
+    }
+    ov.hidden = false;
+    const inp = ov.querySelector('#searchInput');
+    _runSearch(inp.value, ov.querySelector('#searchResults'));
+    setTimeout(() => { inp.focus(); inp.select(); }, 30);
+  }
+  function closeSearch() { const ov = document.getElementById('searchOverlay'); if (ov) ov.hidden = true; }
 
   // Async init — load from IndexedDB if available, then render
   (async () => {
