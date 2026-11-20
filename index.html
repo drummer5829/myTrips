@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v49 -->
+<!-- myTrips v50 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v49</title>
+<title>myTrips v50</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2285,13 +2285,28 @@
     .search-overlay { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
   }
   @media (hover: none) { .day-photo-del { opacity: 0.85; } }
+
+  /* ══ v50: meal order lines ══ */
+  .order-rows { display: flex; flex-direction: column; gap: 6px; }
+  .order-row { display: flex; gap: 6px; align-items: center; }
+  .order-who { flex: 0 0 auto; width: 118px; max-width: 38%; padding: 9px 8px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
+  .order-text { flex: 1; min-width: 0; margin: 0 !important; }
+  .order-del { flex: 0 0 auto; width: 30px !important; min-width: 0 !important; height: 30px; padding: 0; border: none; border-radius: 6px;
+    background: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
+  .order-del:hover { color: #c44; background: #fff0f0; }
+  .order-add { margin-top: 6px; min-width: 0 !important; width: auto !important; align-self: flex-start; background: none; border: 1px dashed var(--border);
+    border-radius: 8px; padding: 6px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; }
+  .order-add:hover { border-color: var(--accent); color: var(--accent); }
+  .order-line { display: flex; gap: 6px; align-items: baseline; }
+  .people-tag.who { flex-shrink: 0; color: var(--text); font-weight: 600; }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v49</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v50</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -2417,10 +2432,11 @@
       <label class="field-label">Time <span class="field-opt">(optional)</span></label>
       <input type="time" id="mealTime" class="meal-input time-input" />
 
-      <label class="field-label">Details</label>
-      <textarea id="mealDetails" placeholder="What did everyone order? Any notes..." class="meal-textarea" rows="4"></textarea>
       <label class="field-label">Who was there</label>
       <div class="people-chips" id="mealPeople"></div>
+      <label class="field-label">Orders &amp; notes</label>
+      <div class="order-rows" id="mealOrderRows"></div>
+      <button type="button" class="order-add" id="mealOrderAdd">+ Add line</button>
 
       <label class="field-label">Photos</label>
       <div class="image-upload-zone" id="imageUploadZone" onclick="document.getElementById('mealImageInput').click()">
@@ -3592,7 +3608,7 @@
     document.getElementById('mealDayInput').style.display = 'none';
       document.getElementById('mealLocation').value = '';
       document.getElementById('mealLocationDetail').value = '';
-      document.getElementById('mealDetails').value = '';
+      _renderOrderRows([]);
       document.getElementById('imagePreviewGrid').innerHTML = '';
       document.getElementById('mealImageInput').value = '';
       document.getElementById('mealTypeSelect').value = 'breakfast';
@@ -3843,7 +3859,11 @@
     }
     const people = (kind === 'food' && item.people && item.people.length)
       ? `<div class="people-tags">${item.people.map(p => `<span class="people-tag">${esc(p)}</span>`).join('')}</div>` : '';
-    const details = (item.details || []).map(d => `<p>${esc(d)}</p>`).join('');
+    const details = kind === 'food'
+      ? _orderLinesOf(item).map(l => l.who
+          ? `<p class="order-line"><span class="people-tag who">${esc(l.who)}</span> ${esc(l.text)}</p>`
+          : `<p>${esc(l.text)}</p>`).join('')
+      : (item.details || []).map(d => `<p>${esc(d)}</p>`).join('');
     return `${timeHtml}<h3>${esc(item.name)}</h3>${loc}${badge}${people}${details}`;
   }
 
@@ -5821,16 +5841,78 @@
   }
 
 
+
+  document.getElementById('mealOrderAdd').addEventListener('click', () => _addOrderRow(null, true));
+  // ══ Meal order lines: who ordered what ══
+  const _SHARED_WORDS = ['shared', 'everyone', 'all', 'table', 'group'];
+  // Turn an old "Abby: sardines" text line into {who, text} when the prefix names travelers
+  function _parseOrderLine(line, names) {
+    const m = /^([^:]{1,40}):\s*(.+)$/.exec(String(line || ''));
+    if (!m) return { who: '', text: String(line || '') };
+    const prefix = m[1].trim();
+    const lower = names.map(n => n.toLowerCase());
+    const parts = prefix.split(/\s*(?:\/|&|,|\band\b)\s*/i).filter(Boolean);
+    const ok = parts.length && parts.every(p => lower.includes(p.toLowerCase()) || _SHARED_WORDS.includes(p.toLowerCase()));
+    return ok ? { who: prefix, text: m[2].trim() } : { who: '', text: String(line) };
+  }
+  function _orderLinesOf(item) {
+    if (Array.isArray(item.lines)) return item.lines;
+    const names = _tripTravelerNames();
+    if (typeof accountData !== 'undefined' && accountData.firstName) names.push(accountData.firstName);   // "Me" is often written by name
+    return (item.details || []).map(d => _parseOrderLine(d, names));
+  }
+  function _orderLineText(l) { return l.who ? `${l.who}: ${l.text}` : l.text; }
+
+  function _addOrderRow(line, focus) {
+    const box = document.getElementById('mealOrderRows');
+    const row = document.createElement('div');
+    row.className = 'order-row';
+    const sel = document.createElement('select');
+    sel.className = 'order-who';
+    sel.setAttribute('aria-label', 'Who');
+    const opts = [['', '—'], ...(_tripTravelerNames().map(n => [n, n])), ['Shared', 'Shared']];
+    if (line && line.who && !opts.some(o => o[0] === line.who)) opts.push([line.who, line.who]);
+    opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); });
+    sel.value = (line && line.who) || '';
+    sel.onchange = () => {   // picking a person also marks them as there
+      const chip = [...document.querySelectorAll('#mealPeople .people-chip')].find(c => c.textContent === sel.value);
+      if (chip && !chip.classList.contains('on')) { chip.classList.add('on'); chip.setAttribute('aria-pressed', 'true'); }
+      inp.focus();
+    };
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'meal-input order-text'; inp.maxLength = 160;
+    inp.placeholder = 'Dish, drink or note';
+    inp.value = (line && line.text) || '';
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); _addOrderRow(null, true); } });
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'order-del'; del.setAttribute('aria-label', 'Remove line'); del.textContent = '×';
+    del.onclick = () => { row.remove(); if (!box.children.length) _addOrderRow(null, false); };
+    row.append(sel, inp, del);
+    box.appendChild(row);
+    if (focus) sel.focus();
+  }
+  function _renderOrderRows(lines) {
+    const box = document.getElementById('mealOrderRows');
+    box.innerHTML = '';
+    (lines && lines.length ? lines : [null]).forEach(l => _addOrderRow(l, false));
+  }
+  function _readOrderRows() {
+    return [...document.querySelectorAll('#mealOrderRows .order-row')]
+      .map(r => ({ who: r.querySelector('.order-who').value, text: r.querySelector('.order-text').value.trim() }))
+      .filter(l => l.text);
+  }
+
   // ══ Form readers: one place that turns each entry form into data ══
   function _mealFields() {
     const name = document.getElementById('mealLocation').value.trim();
-    const details = document.getElementById('mealDetails').value.trim();
-    if (!name && !details && mealModal_images.length === 0) return null;
+    const lines = _readOrderRows();
+    if (!name && !lines.length && mealModal_images.length === 0) return null;
     return {
       name: name || '(no name)',
       location: document.getElementById('mealLocationDetail').value.trim(),
       time: document.getElementById('mealTime').value || '',
-      details: details ? details.split('\n').filter(l => l.trim()) : [],
+      lines,
+      details: lines.map(_orderLineText),   // plain-text copy used by search, highlights and backups
       images: mealModal_images.map(i => i.dataUrl),
       people: _selectedPeople()
     };
@@ -6149,7 +6231,7 @@
     document.getElementById('mealLocationDetail').value = item.location || '';
     document.getElementById('mealTime').value = item.time || '';
     document.getElementById('mealDupBtn').hidden = false;
-    document.getElementById('mealDetails').value = (item.details || []).join('\n');
+    _renderOrderRows(_orderLinesOf(item));
     document.getElementById('mealImageInput').value = '';
     _renderPeopleChips(item.people || []);
     const grid = document.getElementById('imagePreviewGrid');
@@ -6492,7 +6574,7 @@
     document.getElementById('mealDayInput').style.display = 'none';
     document.getElementById('mealLocation').value = '';
       document.getElementById('mealLocationDetail').value = '';
-    document.getElementById('mealDetails').value = '';
+    _renderOrderRows([]);
     document.getElementById('imagePreviewGrid').innerHTML = '';
     document.getElementById('mealImageInput').value = '';
     mealModal_catDay = null;
