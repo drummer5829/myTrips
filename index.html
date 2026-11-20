@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v46 -->
+<!-- myTrips v47 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>myTrips v46</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>myTrips v47</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2161,13 +2161,69 @@
   .sync-banner { flex-shrink: 0; background: #fbecd9; color: #6b4a1e; border-bottom: 1px solid #ecd3ae;
     font-size: 0.8rem; padding: 7px 16px; text-align: center; }
   .sync-banner.ok { background: var(--surface); color: var(--text-muted); border-bottom-color: var(--border); }
+
+  /* ══ v47: card layout (text never runs beside the edit/delete buttons) ══ */
+  .card { display: flex; align-items: flex-start; gap: 12px; }
+  .card-main { flex: 1; min-width: 0; display: flex; gap: 20px; align-items: flex-start; }
+  .card-info { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .card-actions { position: static !important; flex-shrink: 0; display: flex; gap: 4px; }
+
+  /* Who was there */
+  .people-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 6px; }
+  .people-tag { font-size: 0.72rem; padding: 1px 8px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); }
+  .people-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .people-chip { min-width: 0 !important; width: auto !important; padding: 6px 12px; border-radius: 16px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; }
+  .people-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .people-empty { font-size: 0.82rem; color: var(--text-muted); }
+
+  /* Quick add */
+  .fab { display: none; }
+  body.view-day .fab {
+    display: flex; align-items: center; justify-content: center;
+    position: fixed; z-index: 550; width: 56px; height: 56px; min-width: 0 !important; padding: 0;
+    right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    border-radius: 50%; border: none; background: var(--accent); color: #fff; font-size: 1.9rem; line-height: 1;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22); cursor: pointer; transition: transform 0.18s;
+  }
+  body.view-day .fab.open { transform: rotate(45deg); }
+  .fab-menu { position: fixed; z-index: 551; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    padding: 12px; width: 240px; max-width: calc(100vw - 32px); box-sizing: border-box; }
+  .fab-menu-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 0 2px 8px; }
+  .fab-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .fab-menu-grid button { min-width: 0 !important; width: 100% !important; padding: 10px 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; text-align: center; }
+  .fab-menu-grid button:hover { border-color: var(--accent); }
+  body.view-day .day-content { padding-bottom: 96px; }
+
+  /* Toast */
+  .app-toast { position: fixed; z-index: 9500; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+    max-width: calc(100vw - 32px); box-sizing: border-box; background: var(--sidebar-bg); color: #f3eee6; font-size: 0.85rem; line-height: 1.4;
+    padding: 10px 16px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+  .app-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 760px) {
+    .card { flex-wrap: nowrap; gap: 8px; }
+    .card-main { flex-direction: column; gap: 10px; }
+    .card-info { flex: 1 1 auto; padding-right: 0; }
+    .card-main > .card-images, .card-main > .photo-box, .card-main > .map-box { margin-left: 0; }
+    .card-actions { flex-direction: column; }
+    /* iOS (Safari and Chrome) zooms the page when a field under 16px gets focus */
+    .meal-input, .meal-textarea, .meal-date-input, .summary-details-input, .day-subtitle-input, .bw-answer-input,
+    .account-field input, .traveler-add-wrap input, #tripNameInput, .modal input, .modal textarea, select { font-size: 16px !important; }
+    .fab-menu { right: calc(16px + env(safe-area-inset-right, 0px)); }
+    body.view-day .fab { right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  }
+  @media (hover: hover) { .card-actions { opacity: 0; } .card:hover .card-actions, .card:focus-within .card-actions { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .fab, .app-toast { transition: none; } }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v46</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v47</span></h1>
   <div class="user-badge" id="userBadge" onclick="showAccountView()">Matt</div>
 </header>
 
@@ -2290,6 +2346,8 @@
 
       <label class="field-label">Details</label>
       <textarea id="mealDetails" placeholder="What did everyone order? Any notes..." class="meal-textarea" rows="4"></textarea>
+      <label class="field-label">Who was there</label>
+      <div class="people-chips" id="mealPeople"></div>
 
       <label class="field-label">Photos</label>
       <div class="image-upload-zone" id="imageUploadZone" onclick="document.getElementById('mealImageInput').click()">
@@ -2785,6 +2843,7 @@
     container.appendChild(scrollBody);
 
     renderEntriesContent(scrollBody, tripId, trip, activeFilters, rerender);
+    _viewRerender = () => { const st = scrollBody.scrollTop; renderEntriesContent(scrollBody, tripId, trip, activeFilters, rerender); scrollBody.scrollTop = st; };
   }
 
   function renderEntriesContent(scrollBody, tripId, trip, activeFilters, rerender) {
@@ -3208,6 +3267,7 @@
     const container = document.getElementById('categoryView');
     container.innerHTML = '';
     const rerender = () => renderCategoryView(category, tripId, tripName);
+    _viewRerender = rerender;
 
     // Sticky header
     const stickyHeader = document.createElement('div');
@@ -3442,7 +3502,6 @@
       mealModal_container = null;
       mealModal_images = [];
       mealModal_editItem = null;
-      mealModal_editCard = null;
       mealModal_catDay = day;       // store day ref so saveMealEntry can use it
       mealModal_catRerender = rerender;
 
@@ -3457,6 +3516,7 @@
       document.getElementById('imagePreviewGrid').innerHTML = '';
       document.getElementById('mealImageInput').value = '';
       document.getElementById('mealTypeSelect').value = 'breakfast';
+      _renderPeopleChips(_tripTravelerNames());
       document.getElementById('mealModalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('mealLocation').focus(), 60);
 
@@ -3588,7 +3648,7 @@
         reader.onload = e => {
           item.images.push(e.target.result);
           loaded++;
-          if (loaded === files.length) onUploaded();
+          if (loaded === files.length && onUploaded) onUploaded();
         };
         reader.readAsDataURL(file);
       });
@@ -3675,85 +3735,91 @@
     return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function makeFoodCard(item, array, onDelete) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    const info = document.createElement('div');
-    info.className = 'card-info';
-    const checkInStr = (item.checkInIdx != null) ? formatDate(dateForIndex(item.checkInIdx)) : null;
-    const checkOutStr = (item.checkOutIdx != null) ? formatDate(dateForIndex(item.checkOutIdx)) : null;
-    const dateBadge = (checkInStr && checkOutStr)
-      ? `<div class="lodging-dates-badge">${checkInStr} → ${checkOutStr}</div>` : '';
-    const locationHtml = item.location ? `<p class="lodging-location">${esc(item.location)}</p>` : '';
-    info.innerHTML = `<h3>${esc(item.name)}</h3>${locationHtml}${dateBadge}` + (item.details||[]).map(d => `<p>${esc(d)}</p>`).join('');
-    card.appendChild(info);
-    if (item.images && item.images.length > 0) {
-      const imgCol = document.createElement('div');
-      imgCol.className = 'card-images';
+  // ══ Entry cards: one builder for food, activity, place and accommodation ══
+  const MEAL_KEYS = ['breakfast','lunch','dinner','snacks'];
+
+  function _durationText(act) {
+    if (!act.durationH && !act.durationM && act.duration) return act.duration;
+    const h = parseInt(act.durationH || 0), m = parseInt(act.durationM || 0);
+    const parts = [];
+    if (h) parts.push(h + 'h');
+    if (m) parts.push(m + 'm');
+    return parts.length ? parts.join(' ') : '—';
+  }
+
+  function _cardInfoHtml(kind, item) {
+    const loc = item.location ? `<p class="lodging-location">${esc(item.location)}</p>` : '';
+    if (kind === 'activity') {
+      const desc = (item.description || '').split('\n').filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('');
+      return `<h3>${esc(item.name)}</h3>${loc}${desc}
+        <div class="stat"><span>Distance:</span> ${esc(item.distance || '—')}</div>
+        <div class="stat"><span>Duration:</span> ${esc(_durationText(item))}</div>`;
+    }
+    let badge = '';
+    if (kind === 'lodging' && item.checkInIdx != null && item.checkOutIdx != null) {
+      badge = `<div class="lodging-dates-badge">${formatDate(dateForIndex(item.checkInIdx))} → ${formatDate(dateForIndex(item.checkOutIdx))}</div>`;
+    }
+    const people = (kind === 'food' && item.people && item.people.length)
+      ? `<div class="people-tags">${item.people.map(p => `<span class="people-tag">${esc(p)}</span>`).join('')}</div>` : '';
+    const details = (item.details || []).map(d => `<p>${esc(d)}</p>`).join('');
+    return `<h3>${esc(item.name)}</h3>${loc}${badge}${people}${details}`;
+  }
+
+  // Photos column, sample map, or an upload box — the only place card media is built
+  function _cardMedia(kind, item) {
+    if (item.images && item.images.length) {
+      const col = document.createElement('div');
+      col.className = 'card-images';
       item.images.forEach(src => {
         const img = document.createElement('img');
-        img.src = src; img.className = 'card-img-thumb';
+        img.src = src; img.className = 'card-img-thumb'; img.loading = 'lazy'; img.alt = item.name || '';
         img.onclick = () => openCardGallery(src, item.images, item.name);
-        imgCol.appendChild(img);
+        col.appendChild(img);
       });
-      card.appendChild(imgCol);
-    } else {
-      card.appendChild(makePhotoBox(item, card, () => {
-        const existing = card.querySelector('.photo-box, .card-images');
-        if (existing) existing.remove();
-        const actions = card.querySelector('.card-actions');
-        if (item.images && item.images.length) {
-          const imgCol = document.createElement('div'); imgCol.className = 'card-images';
-          item.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb'; img.onclick = () => {
-          openCardGallery(src, Array.from(card.querySelectorAll('.card-img-thumb')).map(i => i.src), '');
-        }; imgCol.appendChild(img); });
-          card.insertBefore(imgCol, actions);
-        }
-      }));
+      return col;
     }
+    if (kind === 'activity' && item.hasMap) {
+      const mapBox = document.createElement('div');
+      mapBox.className = 'map-box';
+      mapBox.innerHTML = SAMPLE_MAP_SVG;
+      return mapBox;
+    }
+    return makePhotoBox(item, null, _afterChange);
+  }
+
+  function makeEntryCard(kind, item, array, onDelete) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const main = document.createElement('div');
+    main.className = 'card-main';
+    const info = document.createElement('div');
+    info.className = 'card-info';
+    info.innerHTML = _cardInfoHtml(kind, item);
+    main.appendChild(info);
+    main.appendChild(_cardMedia(kind, item));
+    card.appendChild(main);
     if (array) {
       card.appendChild(makeCardActions(
-        () => openFoodEditModal(item, card),
-        () => deleteCard(card, array, item, onDelete)
+        () => openEntryEditor(kind, item),
+        () => deleteCard(card, array, item, onDelete || _afterChange)
       ));
     }
     return card;
   }
 
-  function makeActivityCard(act, array, onDelete) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    const info = document.createElement('div');
-    info.className = 'card-info';
-    const locationLine = act.location ? `<p class="lodging-location">${esc(act.location)}</p>` : '';
-    const descLines = (act.description || '').split('\n').filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('');
-    const durStr = (() => {
-      const h = parseInt(act.durationH || 0), m = parseInt(act.durationM || 0);
-      // Fallback: if old string-format duration exists, show it as-is
-      if (!act.durationH && !act.durationM && !act.durationS && act.duration) return act.duration;
-      const parts = [];
-      if (h) parts.push(h + 'h');
-      if (m) parts.push(m + 'm');
-      return parts.length ? parts.join(' ') : '—';
-    })();
-    info.innerHTML = `<h3>${esc(act.name)}</h3>${locationLine}${descLines}
-      <div class="stat"><span>Distance:</span> ${esc(act.distance || '—')}</div>
-      <div class="stat"><span>Duration:</span> ${durStr}</div>`;
-    card.appendChild(info);
-    if (act.images && act.images.length > 0) {
-      const imgCol = document.createElement('div');
-      imgCol.className = 'card-images';
-      act.images.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src; img.className = 'card-img-thumb'; img._galleryKey = src;
-        img.onclick = () => openCardGallery(src, act.images, act.name);
-        imgCol.appendChild(img);
-      });
-      card.appendChild(imgCol);
-    } else if (act.hasMap) {
-      const mapBox = document.createElement('div');
-      mapBox.className = 'map-box';
-      mapBox.innerHTML = `<svg viewBox="0 0 220 170" xmlns="http://www.w3.org/2000/svg">
+  function makeFoodCard(item, array, onDelete)    { return makeEntryCard('food', item, array, onDelete); }
+  function makeActivityCard(item, array, onDelete){ return makeEntryCard('activity', item, array, onDelete); }
+  function makeLodgingCard(item, array, onDelete) { return makeEntryCard('lodging', item, array, onDelete); }
+  function makePlaceCard(item, array, onDelete)   { return makeEntryCard('place', item, array, onDelete); }
+
+  function openEntryEditor(kind, item) {
+    if (kind === 'food') openFoodEditModal(item);
+    else if (kind === 'activity') openActivityEditModal(item);
+    else if (kind === 'place') openPlacesEditModal(item);
+    else if (kind === 'lodging') openLodgingEditModal(item);
+  }
+
+  const SAMPLE_MAP_SVG = `<svg viewBox="0 0 220 170" xmlns="http://www.w3.org/2000/svg">
         <rect width="220" height="170" fill="#c8dfc4"/>
         <rect x="0" y="120" width="220" height="50" fill="#a8c4d8" opacity="0.7"/>
         <line x1="110" y1="0" x2="110" y2="170" stroke="#e0d8cc" stroke-width="8" opacity="0.4"/>
@@ -3764,114 +3830,10 @@
         <circle cx="130" cy="135" r="5" fill="#33aa33"/>
         <circle cx="130" cy="135" r="3" fill="#cc3333"/>
       </svg>`;
-      card.appendChild(mapBox);
-    } else {
-      card.appendChild(makePhotoBox(act, card, () => {
-        const existing = card.querySelector('.photo-box, .card-images');
-        if (existing) existing.remove();
-        const actions = card.querySelector('.card-actions');
-        if (act.images && act.images.length) {
-          const imgCol = document.createElement('div'); imgCol.className = 'card-images';
-          act.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb'; img.onclick = () => {
-          openCardGallery(src, Array.from(card.querySelectorAll('.card-img-thumb')).map(i => i.src), '');
-        }; imgCol.appendChild(img); });
-          card.insertBefore(imgCol, actions);
-        }
-      }));
-    }
-    if (array) card.appendChild(makeCardActions(
-      () => openActivityEditModal(act, card),
-      () => deleteCard(card, array, act, onDelete)
-    ));
-    return card;
-  }
-
-  function makeLodgingCard(item, array, onDelete) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    const info = document.createElement('div');
-    info.className = 'card-info';
-    const checkInStr = (item.checkInIdx != null) ? formatDate(dateForIndex(item.checkInIdx)) : null;
-    const checkOutStr = (item.checkOutIdx != null) ? formatDate(dateForIndex(item.checkOutIdx)) : null;
-    const dateBadge = (checkInStr && checkOutStr)
-      ? `<div class="lodging-dates-badge">${checkInStr} → ${checkOutStr}</div>` : '';
-    const locationHtml = item.location ? `<p class="lodging-location">${esc(item.location)}</p>` : '';
-    info.innerHTML = `<h3>${esc(item.name)}</h3>${locationHtml}${dateBadge}` + (item.details||[]).map(d => `<p>${esc(d)}</p>`).join('');
-    card.appendChild(info);
-    if (item.images && item.images.length > 0) {
-      const imgCol = document.createElement('div');
-      imgCol.className = 'card-images';
-      item.images.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src; img.className = 'card-img-thumb';
-        img.onclick = () => openCardGallery(src, item.images, item.name);
-        imgCol.appendChild(img);
-      });
-      card.appendChild(imgCol);
-    } else {
-      card.appendChild(makePhotoBox(item, card, () => {
-        const existing = card.querySelector('.photo-box, .card-images');
-        if (existing) existing.remove();
-        const actions = card.querySelector('.card-actions');
-        if (item.images && item.images.length) {
-          const imgCol = document.createElement('div'); imgCol.className = 'card-images';
-          item.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb'; img.onclick = () => {
-          openCardGallery(src, Array.from(card.querySelectorAll('.card-img-thumb')).map(i => i.src), '');
-        }; imgCol.appendChild(img); });
-          card.insertBefore(imgCol, actions);
-        }
-      }));
-    }
-    if (array) card.appendChild(makeCardActions(
-      () => openLodgingEditModal(item, card),
-      () => deleteCard(card, array, item, onDelete)
-    ));
-    return card;
-  }
-
-
-  function makePlaceCard(item, array, onDelete) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    const info = document.createElement('div');
-    info.className = 'card-info';
-    info.innerHTML = `<h3>${esc(item.name)}</h3>` +
-      (item.location ? `<p class="place-location">${esc(item.location)}</p>` : '') +
-      (item.details||[]).map(d => `<p>${esc(d)}</p>`).join('');
-    card.appendChild(info);
-    if (item.images && item.images.length > 0) {
-      const imgCol = document.createElement('div');
-      imgCol.className = 'card-images';
-      item.images.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src; img.className = 'card-img-thumb';
-        img.onclick = () => openCardGallery(src, item.images, item.name);
-        imgCol.appendChild(img);
-      });
-      card.appendChild(imgCol);
-    } else {
-      card.appendChild(makePhotoBox(item, card, () => {
-        const existing = card.querySelector('.photo-box, .card-images');
-        if (existing) existing.remove();
-        const actions = card.querySelector('.card-actions');
-        if (item.images && item.images.length) {
-          const imgCol = document.createElement('div'); imgCol.className = 'card-images';
-          item.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb'; img.onclick = () => {
-          openCardGallery(src, Array.from(card.querySelectorAll('.card-img-thumb')).map(i => i.src), '');
-        }; imgCol.appendChild(img); });
-          card.insertBefore(imgCol, actions);
-        }
-      }));
-    }
-    if (array) card.appendChild(makeCardActions(
-      () => openPlacesEditModal(item, card),
-      () => deleteCard(card, array, item, onDelete)
-    ));
-    return card;
-  }
 
   // ── Day view rendering ──
   function renderDayContent() {
+    _viewRerender = _rerenderDayKeepScroll;
     const container = document.getElementById('dayContent');
     container.innerHTML = '';
     const tripData = getTripData();
@@ -3896,19 +3858,9 @@
     dayPhotoInput.type = 'file'; dayPhotoInput.accept = 'image/*'; dayPhotoInput.multiple = true;
     dayPhotoInput.style.display = 'none';
     dayPhotoInput.addEventListener('change', () => {
-      if (!data.photos) data.photos = [];
       const files = Array.from(dayPhotoInput.files);
-      let loaded = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          data.photos.push(e.target.result);
-          loaded++;
-          if (loaded === files.length) { renderDayContent(); document.getElementById('dayContent').scrollTop = 0; }
-        };
-        reader.readAsDataURL(file);
-      });
       dayPhotoInput.value = '';
+      _addDayPhotosAutoSort(files, activeDay);
     });
     container.appendChild(dayPhotoInput);
 
@@ -4181,7 +4133,7 @@
           card.style.display = 'flex'; card.style.alignItems = 'flex-start';
           card.insertBefore(makeReorderActions(tripLodgingArr, item, renderLodgingCards), card.firstChild);
           card.appendChild(makeCardActions(
-            () => openLodgingEditModal(item, card),
+            () => openLodgingEditModal(item),
             nightDelete,
             'Remove night?'
           ));
@@ -5654,6 +5606,188 @@
     });
     return { srcs, capts };
   }
+
+
+  // ══ Meal "who was there" chips ══
+  function _tripTravelerNames() {
+    const t = (allTripMeta[activeTrip] && allTripMeta[activeTrip].travelers) || [];
+    return t.map((n, i) => (n && String(n).trim()) || `Traveler ${i + 1}`);
+  }
+  function _renderPeopleChips(selected) {
+    const box = document.getElementById('mealPeople');
+    if (!box) return;
+    box.innerHTML = '';
+    const names = _tripTravelerNames();
+    // keep tags for people no longer on the trip list
+    (selected || []).forEach(n => { if (!names.includes(n)) names.push(n); });
+    if (!names.length) {
+      box.innerHTML = '<span class="people-empty">Add travelers on the trip Summary page to tag them here.</span>';
+      return;
+    }
+    names.forEach(n => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'people-chip' + ((selected || []).includes(n) ? ' on' : '');
+      b.textContent = n;
+      b.setAttribute('aria-pressed', b.classList.contains('on'));
+      b.onclick = () => { b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')); };
+      box.appendChild(b);
+    });
+  }
+  function _selectedPeople() {
+    return Array.from(document.querySelectorAll('#mealPeople .people-chip.on')).map(b => b.textContent);
+  }
+
+
+  // ══ Photos: file each photo under the day it was taken (EXIF capture date) ══
+  async function _exifDate(file) {
+    try {
+      const buf = await file.slice(0, 256 * 1024).arrayBuffer();
+      const v = new DataView(buf);
+      if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return null;
+      let off = 2;
+      while (off + 4 < v.byteLength) {
+        const marker = v.getUint16(off);
+        const len = v.getUint16(off + 2);
+        if (marker === 0xFFE1 && v.getUint32(off + 4) === 0x45786966) { // "Exif"
+          const t = off + 10;
+          const le = v.getUint16(t) === 0x4949;
+          const u16 = o => v.getUint16(t + o, le), u32 = o => v.getUint32(t + o, le);
+          const str = (o, n) => { let s = ''; for (let i = 0; i < n; i++) { const c = v.getUint8(t + o + i); if (!c) break; s += String.fromCharCode(c); } return s; };
+          const readIfd = (o, want) => {
+            const n = u16(o); const out = {};
+            for (let i = 0; i < n; i++) {
+              const e = o + 2 + i * 12, tag = u16(e);
+              if (want.includes(tag)) out[tag] = { count: u32(e + 4), val: u32(e + 8) };
+            }
+            return out;
+          };
+          const ifd0 = readIfd(u32(4), [0x8769, 0x0132]);
+          let ds = null;
+          if (ifd0[0x8769]) {
+            const ex = readIfd(ifd0[0x8769].val, [0x9003, 0x9004]);
+            const tg = ex[0x9003] || ex[0x9004];
+            if (tg) ds = str(tg.val, 19);
+          }
+          if (!ds && ifd0[0x0132]) ds = str(ifd0[0x0132].val, 19);
+          const m = ds && ds.match(/^(\d{4}):(\d{2}):(\d{2})/);
+          return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+        }
+        if ((marker & 0xFF00) !== 0xFF00) break;
+        off += 2 + len;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function _tripDayIndexOf(date) {
+    const s = _ensureDateObj(trips[activeTrip].start);
+    const s0 = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+    return Math.round((date - s0) / 86400000);
+  }
+
+  async function _addDayPhotosAutoSort(files, fallbackDay) {
+    files = Array.from(files || []);
+    if (!files.length) return;
+    const counts = {}; let undated = 0, outside = 0;
+    for (const file of files) {
+      const d = await _exifDate(file);
+      let idx = d ? _tripDayIndexOf(d) : null;
+      if (idx == null) { undated++; idx = fallbackDay; }
+      else if (idx < 0 || idx >= trips[activeTrip].totalDays) { outside++; idx = fallbackDay; }
+      const dataUrl = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = () => res(null); r.readAsDataURL(file); });
+      if (!dataUrl) continue;
+      ensureDaySkeleton(activeTrip, idx).photos.push(dataUrl);
+      counts[idx] = (counts[idx] || 0) + 1;
+    }
+    _afterChange();
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const parts = Object.keys(counts).map(Number).sort((a, b) => a - b).map(i => `${counts[i]} to ${formatDate(dateForIndex(i))}`);
+    let msg = `Added ${total} photo${total === 1 ? '' : 's'}: ${parts.join(', ')}`;
+    const notes = [];
+    if (undated) notes.push(`${undated} had no date`);
+    if (outside) notes.push(`${outside} taken outside the trip`);
+    if (notes.length) msg += ` (${notes.join(', ')}, added to ${formatDate(dateForIndex(fallbackDay))})`;
+    _toast(msg);
+  }
+
+  // ══ One path for "data changed → refresh what's on screen" ══
+  let _viewRerender = null;
+  function _afterChange() {
+    if (typeof _viewRerender === 'function') _viewRerender();
+    else renderDayContent();
+    if (typeof scheduleSave === 'function') scheduleSave();
+  }
+  function _rerenderDayKeepScroll() {
+    const dc = document.getElementById('dayContent');
+    const st = dc ? dc.scrollTop : 0;
+    renderDayContent();
+    if (dc) dc.scrollTop = st;
+  }
+
+  // Find which day (and meal) an entry belongs to in the active trip
+  let _editDayIdx = null;
+  function _locateEntry(item) {
+    const td = allTripData[activeTrip] || {};
+    for (const k of Object.keys(td)) {
+      const d = td[k]; if (!d) continue;
+      for (const mk of MEAL_KEYS) if (d.food && (d.food[mk] || []).includes(item)) return { dayIdx: +k, mealKey: mk, array: d.food[mk] };
+      if ((d.activities || []).includes(item)) return { dayIdx: +k, array: d.activities };
+      if ((d.places || []).includes(item)) return { dayIdx: +k, array: d.places };
+    }
+    return { dayIdx: activeDay, array: null };
+  }
+
+  function _dayIdxFromInput(val) {
+    return Math.round((new Date(val + 'T00:00:00') - _ensureDateObj(trips[activeTrip].start)) / 86400000);
+  }
+
+  // Add days before the trip start, shifting every saved day and stay
+  function _extendTripBack(n) {
+    const t = trips[activeTrip];
+    t.start = new Date(_ensureDateObj(t.start).getTime() - n * 86400000);
+    t.totalDays += n;
+    const old = allTripData[activeTrip] || {}, shifted = {};
+    Object.keys(old).forEach(k => { shifted[parseInt(k) + n] = old[k]; });
+    allTripData[activeTrip] = shifted;
+    (allTripLodging[activeTrip] || []).forEach(l => { l.checkInIdx += n; l.checkOutIdx += n; });
+  }
+
+  function _syncTripGlobals() { totalDays = trips[activeTrip].totalDays; tripStart = trips[activeTrip].start; }
+
+  // Move an edited entry to another day (extending the trip if needed)
+  function _moveEntryToDay(item, fromArray, newDay, targetOf) {
+    const i = fromArray ? fromArray.indexOf(item) : -1;
+    if (i !== -1) fromArray.splice(i, 1);
+    if (newDay < 0) { _extendTripBack(-newDay); newDay = 0; }
+    else if (newDay >= trips[activeTrip].totalDays) trips[activeTrip].totalDays = newDay + 1;
+    targetOf(ensureDaySkeleton(activeTrip, newDay)).push(item);
+    _syncTripGlobals();
+    if (currentView === 'day') activeDay = newDay;
+    renderDateTabs();
+    _afterChange();
+  }
+
+  // If the Edit Date field moved the entry, handle it and return true
+  function _handleEditDate(inputId, item, fromArray, targetOf, applyFields, closeFn) {
+    const el = document.getElementById(inputId);
+    if (!el || el.style.display === 'none' || !el.value) return false;
+    const newDay = _dayIdxFromInput(el.value);
+    if (newDay === _editDayIdx) return false;
+    const go = () => { applyFields(); closeFn(); _moveEntryToDay(item, fromArray, newDay, targetOf); };
+    if (newDay >= 0 && newDay < trips[activeTrip].totalDays) go();
+    else _promptAddDay(el.value, go);
+    return true;
+  }
+
+  // Small confirmation toast
+  function _toast(msg) {
+    let t = document.getElementById('appToast');
+    if (!t) { t = document.createElement('div'); t.id = 'appToast'; t.className = 'app-toast'; document.body.appendChild(t); }
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
   function makeReorderActions(array, item, onRerender) {
     const wrap = document.createElement('div');
     wrap.className = 'reorder-btns';
@@ -5770,74 +5904,66 @@
   }
 
   // ── Food edit: reuse meal modal in edit mode ──
-  function openFoodEditModal(item, card) {
+  function openFoodEditModal(item) {
+    const loc = _locateEntry(item);
+    _editDayIdx = loc.dayIdx;
     mealModal_editItem = item;
-    mealModal_editCard = card;
+    mealModal_meal = loc.mealKey || 'breakfast';
+    mealModal_array = loc.array;
+    mealModal_catDay = null; mealModal_catRerender = null;
     mealModal_images = (item.images || []).map(url => ({ dataUrl: url }));
-    // Find which meal array this item lives in
-    const _dayData = (allTripData[activeTrip] || {})[activeDay] || {};
-    for (const mk of ['breakfast','lunch','dinner','snacks']) {
-      if (_dayData.food && (_dayData.food[mk] || []).includes(item)) {
-        mealModal_meal = mk;
-        mealModal_array = _dayData.food[mk];
-        break;
-      }
-    }
 
+    document.getElementById('mealTypeRow').style.display = 'none';
     document.getElementById('mealModalTitle').textContent = 'Edit Entry';
     document.getElementById('mealModalSaveBtn').textContent = 'Save Changes';
     document.getElementById('mealDayLabel').style.display = '';
-    const _mealDayInp = document.getElementById('mealDayInput'); _mealDayInp.style.display = ''; _mealDayInp.value = toInputDate(activeTrip, activeDay);
-    document.getElementById('mealLocation').value = item.name;
+    const di = document.getElementById('mealDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
+    document.getElementById('mealLocation').value = item.name || '';
     document.getElementById('mealLocationDetail').value = item.location || '';
-    document.getElementById('mealDetails').value = item.details.join('\n');
+    document.getElementById('mealDetails').value = (item.details || []).join('\n');
     document.getElementById('mealImageInput').value = '';
-
-    // Pre-populate image previews
+    _renderPeopleChips(item.people || []);
     const grid = document.getElementById('imagePreviewGrid');
     grid.innerHTML = '';
     mealModal_images.forEach((img, i) => addImagePreview(img.dataUrl, i));
-
     document.getElementById('mealModalOverlay').classList.add('open');
     setTimeout(() => document.getElementById('mealLocation').focus(), 60);
   }
 
   // ── Activity edit: reuse activity modal in edit mode ──
-  function openActivityEditModal(act, card) {
+  function openActivityEditModal(act) {
+    const loc = _locateEntry(act);
+    _editDayIdx = loc.dayIdx;
     activityModal_editItem = act;
-    activityModal_editCard = card;
+    activityModal_array = loc.array;
+    activityModal_catRerender = null;
     activityModal_images = (act.images || []).map(url => ({ dataUrl: url }));
-    // Set array so day-move works
-    const _adDay = (allTripData[activeTrip] || {})[activeDay] || {};
-    activityModal_array = _adDay.activities || [];
 
     document.getElementById('activityModalTitle').textContent = 'Edit Activity';
     document.getElementById('activityModalSaveBtn').textContent = 'Save Changes';
     document.getElementById('activityDayLabel').style.display = '';
-    const _actDayInp = document.getElementById('activityDayInput'); _actDayInp.style.display = ''; _actDayInp.value = toInputDate(activeTrip, activeDay);
-    document.getElementById('activityName').value = act.name;
+    const di = document.getElementById('activityDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
+    document.getElementById('activityName').value = act.name || '';
     document.getElementById('activityLocation').value = act.location || '';
     document.getElementById('activityDescription').value = act.description || '';
     document.getElementById('activityDistance').value = act.distance || '';
-    // Parse old-format duration string if needed
-    (() => { const s = act.duration||''; if (!act.durationH && !act.durationM && s) { const p=s.split(':'); act.durationH=p[0]||'0'; act.durationM=p[1]||'0'; } })();
+    if (!act.durationH && !act.durationM && act.duration) {
+      const p = String(act.duration).split(':'); act.durationH = p[0] || '0'; act.durationM = p[1] || '0';
+    }
     document.getElementById('activityDurationH').value = act.durationH || '';
     document.getElementById('activityDurationM').value = act.durationM || '';
-
     document.getElementById('activityImageInput').value = '';
-
     const grid = document.getElementById('activityImagePreviewGrid');
     grid.innerHTML = '';
     activityModal_images.forEach((img, i) => addActivityImagePreview(img.dataUrl, i));
-
     document.getElementById('activityModalOverlay').classList.add('open');
     setTimeout(() => document.getElementById('activityName').focus(), 60);
   }
 
   // ── Lodging edit: reuse lodging modal in edit mode ──
-  function openLodgingEditModal(item, card) {
+  function openLodgingEditModal(item) {
     lodgingModal_editItem = item;
-    lodgingModal_editCard = card;
+    lodgingModal_catRerender = null;
     lodgingModal_images = (item.images || []).map(url => ({ dataUrl: url }));
 
     const h2 = document.querySelector('#lodgingModalOverlay h2');
@@ -5873,7 +5999,6 @@
   let lodgingModal_container = null;
   let lodgingModal_images = [];
   let lodgingModal_editItem = null;
-  let lodgingModal_editCard = null;
   let lodgingModal_catRerender = null;
 
   function openLodgingModal(array, container, defaultDayIdx) {
@@ -5881,7 +6006,6 @@
     lodgingModal_container = container;
     lodgingModal_images = [];
     lodgingModal_editItem = null;
-    lodgingModal_editCard = null;
 
     const h2 = document.querySelector('#lodgingModalOverlay h2');
     h2.textContent = 'Add Accommodations';
@@ -5904,7 +6028,6 @@
   function closeLodgingModal() {
     document.getElementById('lodgingModalOverlay').classList.remove('open');
     lodgingModal_editItem = null;
-    lodgingModal_editCard = null;
     lodgingModal_catRerender = null;
   }
 
@@ -5936,12 +6059,8 @@
       item.checkInIdx  = checkInIdx;
       item.checkOutIdx = checkOutIdx;
 
-      // Refresh the card in place
-      _refreshLodgingCard(lodgingModal_editCard, item);
-
-      // Re-render the whole lodging section so other days update too
-      renderDayContent();
       closeLodgingModal();
+      _afterChange();
       return;
     }
 
@@ -5954,76 +6073,10 @@
       checkOutIdx
     };
 
-    lodgingModal_array.push(entry);
-
+    (lodgingModal_array || getTripLodging()).push(entry);
     const rerender = lodgingModal_catRerender;
-
-    // Category view path (no DOM container)
-    if (!lodgingModal_container) {
-      closeLodgingModal();
-      if (rerender) rerender();
-      return;
-    }
-
-    // The card is shown if today is within range
-    if (checkInIdx <= activeDay && checkOutIdx >= activeDay) {
-      const addBtn = lodgingModal_container.querySelector('.add-btn');
-      const tripArr = getTripLodging();
-      const card = makeLodgingCard(entry, tripArr, () => renderDayContent());
-      lodgingModal_container.insertBefore(card, addBtn);
-
-      const secHeader = lodgingModal_container.previousElementSibling;
-      if (secHeader && !secHeader.classList.contains('open')) {
-        secHeader.classList.add('open');
-        lodgingModal_container.classList.add('open');
-      }
-    }
-
     closeLodgingModal();
-  }
-
-  function _refreshLodgingCard(card, item) {
-    if (!card) return;
-    const info = card.querySelector('.card-info');
-    if (!info) return;
-    const checkInStr  = (item.checkInIdx  != null) ? formatDate(dateForIndex(item.checkInIdx))  : null;
-    const checkOutStr = (item.checkOutIdx != null) ? formatDate(dateForIndex(item.checkOutIdx)) : null;
-    const dateBadge   = (checkInStr && checkOutStr)
-      ? `<div class="lodging-dates-badge">${checkInStr} → ${checkOutStr}</div>` : '';
-    info.querySelector('h3').textContent = item.name;
-    // Remove old location, badge + p tags, re-insert
-    info.querySelectorAll('.lodging-location, .lodging-dates-badge, p').forEach(el => el.remove());
-    if (item.location) {
-      const loc = document.createElement('p'); loc.className = 'lodging-location'; loc.textContent = item.location; info.appendChild(loc);
-    }
-    info.insertAdjacentHTML('beforeend', dateBadge);
-    item.details.forEach(d => { const p = document.createElement('p'); p.textContent = d; info.appendChild(p); });
-    // images
-    const existingImgCol  = card.querySelector('.card-images');
-    const existingPhotoBox = card.querySelector('.photo-box');
-    if (existingImgCol)   existingImgCol.remove();
-    if (existingPhotoBox) existingPhotoBox.remove();
-    const actions = card.querySelector('.card-actions');
-    if (item.images && item.images.length > 0) {
-      const imgCol = document.createElement('div'); imgCol.className = 'card-images';
-      item.images.forEach(src => {
-        const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb';
-        img.onclick = () => openCardGallery(src, item.images, item.name); imgCol.appendChild(img);
-      });
-      card.insertBefore(imgCol, actions);
-    } else {
-      card.insertBefore(makePhotoBox(item, card, () => {
-        const ex = card.querySelector('.photo-box, .card-images'); if (ex) ex.remove();
-        const act2 = card.querySelector('.card-actions');
-        if (item.images && item.images.length) {
-          const imgCol2 = document.createElement('div'); imgCol2.className = 'card-images';
-          item.images.forEach(src => { const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb'; img.onclick = () => {
-          openCardGallery(src, Array.from(card.querySelectorAll('.card-img-thumb')).map(i => i.src), '');
-        }; imgCol2.appendChild(img); });
-          card.insertBefore(imgCol2, act2);
-        }
-      }), actions);
-    }
+    if (rerender) rerender(); else _afterChange();
   }
 
   // ── Activity Modal ──
@@ -6031,7 +6084,6 @@
   let activityModal_container = null;
   let activityModal_images = [];
   let activityModal_editItem = null;
-  let activityModal_editCard = null;
   let activityModal_catRerender = null;
 
   function openActivityModal(array, container) {
@@ -6039,7 +6091,6 @@
     activityModal_container = container;
     activityModal_images = [];
     activityModal_editItem = null;
-    activityModal_editCard = null;
 
     document.getElementById('activityModalTitle').textContent = 'Add Activity';
     document.getElementById('activityModalSaveBtn').textContent = 'Add';
@@ -6062,97 +6113,36 @@
   function closeActivityModal() {
     document.getElementById('activityModalOverlay').classList.remove('open');
     activityModal_editItem = null;
-    activityModal_editCard = null;
     activityModal_catRerender = null;
   }
 
   function saveActivityEntry() {
     const name = document.getElementById('activityName').value.trim();
-    const location = document.getElementById('activityLocation').value.trim();
-    const distance = document.getElementById('activityDistance').value.trim();
-    const description = document.getElementById('activityDescription').value.trim();
-    const durationH = document.getElementById('activityDurationH').value.trim();
-    const durationM = document.getElementById('activityDurationM').value.trim();
     if (!name) return;
-
-    const buildDurStr = (h, m) => {
-      const parts = [];
-      if (parseInt(h)) parts.push(parseInt(h) + 'h');
-      if (parseInt(m)) parts.push(parseInt(m) + 'm');
-      if (parseInt(s)) parts.push(parseInt(s) + 's');
-      return parts.length ? parts.join(' ') : '—';
+    const fields = {
+      name,
+      location: document.getElementById('activityLocation').value.trim(),
+      description: document.getElementById('activityDescription').value.trim(),
+      distance: document.getElementById('activityDistance').value.trim(),
+      durationH: document.getElementById('activityDurationH').value.trim(),
+      durationM: document.getElementById('activityDurationM').value.trim(),
+      images: activityModal_images.map(i => i.dataUrl)
     };
 
-    // Check if day changed
-    const _actDayInputEl = document.getElementById('activityDayInput');
-    if (activityModal_editItem && _actDayInputEl && _actDayInputEl.style.display !== 'none' && _actDayInputEl.value) {
-      const _targetDate = new Date(_actDayInputEl.value + 'T00:00:00');
-      const _newDay = Math.round((_targetDate - _ensureDateObj(trips[activeTrip].start)) / 86400000);
-      if (_newDay !== activeDay) {
-        const doMoveAct = () => {
-          const _ci = activityModal_array.indexOf(activityModal_editItem);
-          if (_ci !== -1) activityModal_array.splice(_ci, 1);
-          if (_newDay < 0) {
-            const daysToAdd = -_newDay;
-            trips[activeTrip].start = new Date(_ensureDateObj(trips[activeTrip].start).getTime() - daysToAdd * 86400000);
-            trips[activeTrip].totalDays += daysToAdd;
-            const _old = allTripData[activeTrip]; const _new2 = {};
-            Object.keys(_old).forEach(k => { _new2[parseInt(k)+daysToAdd] = _old[k]; });
-            allTripData[activeTrip] = _new2;
-            (allTripLodging[activeTrip]||[]).forEach(l => { l.checkInIdx += daysToAdd; l.checkOutIdx += daysToAdd; });
-            ensureDaySkeleton(activeTrip, 0);
-            activityModal_editItem.name = name; activityModal_editItem.location = location;
-            activityModal_editItem.description = description; activityModal_editItem.distance = distance;
-            activityModal_editItem.durationH = durationH; activityModal_editItem.durationM = durationM;
-            activityModal_editItem.images = activityModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][0].activities.push(activityModal_editItem);
-          } else {
-            if (_newDay >= trips[activeTrip].totalDays) trips[activeTrip].totalDays = _newDay + 1;
-            ensureDaySkeleton(activeTrip, _newDay);
-            activityModal_editItem.name = name; activityModal_editItem.location = location;
-            activityModal_editItem.description = description; activityModal_editItem.distance = distance;
-            activityModal_editItem.durationH = durationH; activityModal_editItem.durationM = durationM;
-            activityModal_editItem.images = activityModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][_newDay].activities.push(activityModal_editItem);
-          }
-          totalDays = trips[activeTrip].totalDays; tripStart = trips[activeTrip].start;
-          activeDay = _newDay < 0 ? 0 : Math.min(_newDay, trips[activeTrip].totalDays - 1);
-          closeActivityModal(); renderDateTabs(); renderDayContent();
-        };
-        if (_newDay >= 0 && _newDay < trips[activeTrip].totalDays) { doMoveAct(); }
-        else { _promptAddDay(_actDayInputEl.value, doMoveAct); }
-        return;
-      }
-    }
-    if (activityModal_editItem) {
-      // ── Edit mode ──
-      activityModal_editItem.name = name;
-      activityModal_editItem.location = location;
-      activityModal_editItem.description = description;
-      activityModal_editItem.distance = distance;
-      activityModal_editItem.durationH = durationH;
-      activityModal_editItem.durationM = durationM;
-      activityModal_editItem.images = activityModal_images.map(i => i.dataUrl);
+    const item = activityModal_editItem;
+    if (item) {
+      if (_handleEditDate('activityDayInput', item, activityModal_array, d => d.activities,
+            () => Object.assign(item, fields), closeActivityModal)) return;
+      Object.assign(item, fields);
       closeActivityModal();
-      renderDayContent();
+      _afterChange();
       return;
     }
 
-    const entry = { name, location, description, distance, durationH, durationM, hasMap: false, images: activityModal_images.map(i => i.dataUrl) };
-    // Category view path: activityModal_container may be null
-    if (!activityModal_container) {
-      // Add to the active trip day's activities
-      const day = ensureDaySkeleton(activeTrip, activeDay);
-      day.activities.push(entry);
-      const rerender = activityModal_catRerender;
-      closeActivityModal();
-      if (rerender) rerender();
-      return;
-    }
-
-    activityModal_array.push(entry);
+    const rerender = activityModal_catRerender;
+    (activityModal_array || ensureDaySkeleton(activeTrip, activeDay).activities).push({ ...fields, hasMap: false });
     closeActivityModal();
-    renderDayContent();
+    if (rerender) rerender(); else _afterChange();
   }
 
   function addActivityImagePreview(dataUrl, idx) {
@@ -6169,7 +6159,6 @@
   let placesModal_container = null;
   let placesModal_images = [];
   let placesModal_editItem = null;
-  let placesModal_editCard = null;
   let placesModal_catRerender = null;
 
   function openPlacesModal(array, container) {
@@ -6177,7 +6166,6 @@
     placesModal_container = container;
     placesModal_images = [];
     placesModal_editItem = null;
-    placesModal_editCard = null;
     if (container !== null) placesModal_catRerender = null; // only reset when not coming from cat view
 
     document.getElementById('placesModalTitle').textContent = 'Add Place';
@@ -6197,7 +6185,6 @@
   function closePlacesModal() {
     document.getElementById('placesModalOverlay').classList.remove('open');
     placesModal_editItem = null;
-    placesModal_editCard = null;
     placesModal_catRerender = null;
   }
 
@@ -6206,126 +6193,48 @@
     const location = document.getElementById('placesLocation').value.trim();
     const details  = document.getElementById('placesDetails').value.trim();
     if (!name && !location && !details && placesModal_images.length === 0) return;
+    const fields = {
+      name: name || '(no name)',
+      location,
+      details: details.split('\n').filter(l => l.trim()),
+      images: placesModal_images.map(i => i.dataUrl)
+    };
 
-    const detailLines = details.split('\n').filter(l => l.trim());
-
-    // Check if day changed
-    const _placesDayInputEl = document.getElementById('placesDayInput');
-    if (placesModal_editItem && _placesDayInputEl && _placesDayInputEl.style.display !== 'none' && _placesDayInputEl.value) {
-      const _targetDate = new Date(_placesDayInputEl.value + 'T00:00:00');
-      const _newDay = Math.round((_targetDate - _ensureDateObj(trips[activeTrip].start)) / 86400000);
-      if (_newDay !== activeDay) {
-        const doMovePlace = () => {
-          const _ci = placesModal_array.indexOf(placesModal_editItem);
-          if (_ci !== -1) placesModal_array.splice(_ci, 1);
-          if (_newDay < 0) {
-            const daysToAdd = -_newDay;
-            trips[activeTrip].start = new Date(_ensureDateObj(trips[activeTrip].start).getTime() - daysToAdd * 86400000);
-            trips[activeTrip].totalDays += daysToAdd;
-            const _old = allTripData[activeTrip]; const _new3 = {};
-            Object.keys(_old).forEach(k => { _new3[parseInt(k)+daysToAdd] = _old[k]; });
-            allTripData[activeTrip] = _new3;
-            (allTripLodging[activeTrip]||[]).forEach(l => { l.checkInIdx += daysToAdd; l.checkOutIdx += daysToAdd; });
-            ensureDaySkeleton(activeTrip, 0);
-            placesModal_editItem.name = name || '(no name)'; placesModal_editItem.location = location;
-            placesModal_editItem.details = detailLines; placesModal_editItem.images = placesModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][0].places.push(placesModal_editItem);
-          } else {
-            if (_newDay >= trips[activeTrip].totalDays) trips[activeTrip].totalDays = _newDay + 1;
-            ensureDaySkeleton(activeTrip, _newDay);
-            placesModal_editItem.name = name || '(no name)'; placesModal_editItem.location = location;
-            placesModal_editItem.details = detailLines; placesModal_editItem.images = placesModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][_newDay].places.push(placesModal_editItem);
-          }
-          totalDays = trips[activeTrip].totalDays; tripStart = trips[activeTrip].start;
-          activeDay = _newDay < 0 ? 0 : Math.min(_newDay, trips[activeTrip].totalDays - 1);
-          closePlacesModal(); renderDateTabs(); renderDayContent();
-        };
-        if (_newDay >= 0 && _newDay < trips[activeTrip].totalDays) { doMovePlace(); }
-        else { _promptAddDay(_placesDayInputEl.value, doMovePlace); }
-        return;
-      }
-    }
-    if (placesModal_editItem) {
-      // Edit mode
-      placesModal_editItem.name     = name || '(no name)';
-      placesModal_editItem.location = location;
-      placesModal_editItem.details  = detailLines;
-      placesModal_editItem.images   = placesModal_images.map(i => i.dataUrl);
-
-      const card = placesModal_editCard;
-      const info = card.querySelector('.card-info');
-      info.innerHTML = `<h3>${esc(placesModal_editItem.name)}</h3>` +
-        (location ? `<p class="place-location">${esc(location)}</p>` : '') +
-        detailLines.map(d => `<p>${esc(d)}</p>`).join('');
-
-      const existingImgCol   = card.querySelector('.card-images');
-      const existingPhotoBox = card.querySelector('.photo-box');
-      if (existingImgCol)   existingImgCol.remove();
-      if (existingPhotoBox) existingPhotoBox.remove();
-      const actions = card.querySelector('.card-actions');
-      if (placesModal_editItem.images.length > 0) {
-        const imgCol = document.createElement('div'); imgCol.className = 'card-images';
-        placesModal_editItem.images.forEach(src => {
-          const img = document.createElement('img'); img.src = src; img.className = 'card-img-thumb';
-          img.onclick = () => openCardGallery(src, placesModal_editItem.images, placesModal_editItem.name); imgCol.appendChild(img);
-        });
-        card.insertBefore(imgCol, actions);
-      } else {
-        card.insertBefore(makePhotoBox(placesModal_editItem, card, () => { const ex = card.querySelector('.photo-box, .card-images'); if (ex) ex.remove(); const a2 = card.querySelector('.card-actions'); if (placesModal_editItem.images && placesModal_editItem.images.length) { const ic = document.createElement('div'); ic.className = 'card-images'; placesModal_editItem.images.forEach(s => { const im = document.createElement('img'); im.src = s; im.className = 'card-img-thumb'; im.onclick = () => { const allEl = Array.from(ic.querySelectorAll('img')); openGallery(allEl.map(e=>e.src), allEl.indexOf(im), allEl.map(()=>'')); }; ic.appendChild(im); }); card.insertBefore(ic, a2); } }), actions);
-      }
-
-      const rerender = placesModal_catRerender;
+    const item = placesModal_editItem;
+    if (item) {
+      if (_handleEditDate('placesDayInput', item, placesModal_array, d => d.places,
+            () => Object.assign(item, fields), closePlacesModal)) return;
+      Object.assign(item, fields);
       closePlacesModal();
-      if (rerender) rerender();
+      _afterChange();
       return;
     }
 
-    const entry = { name: name || '(no name)', location, details: detailLines, images: placesModal_images.map(i => i.dataUrl) };
-
-    // Category view path
-    if (!placesModal_container) {
-      const day = ensureDaySkeleton(activeTrip, activeDay);
-      if (!day.places) day.places = [];
-      day.places.push(entry);
-      const rerender = placesModal_catRerender;
-      closePlacesModal();
-      if (rerender) rerender();
-      return;
-    }
-
-    placesModal_array.push(entry);
+    const rerender = placesModal_catRerender;
+    (placesModal_array || ensureDaySkeleton(activeTrip, activeDay).places).push(fields);
     closePlacesModal();
-    renderDayContent();
+    if (rerender) rerender(); else _afterChange();
   }
 
-  function openPlacesEditModal(item, card) {
+  function openPlacesEditModal(item) {
+    const loc = _locateEntry(item);
+    _editDayIdx = loc.dayIdx;
     placesModal_editItem = item;
-    placesModal_editCard = card;
+    placesModal_array = loc.array;
+    placesModal_catRerender = null;
     placesModal_images = (item.images || []).map(url => ({ dataUrl: url }));
-    // Set array so day-move works
-    const _pdDay = (allTripData[activeTrip] || {})[activeDay] || {};
-    placesModal_array = _pdDay.places || [];
 
     document.getElementById('placesModalTitle').textContent = 'Edit Place';
     document.getElementById('placesModalSaveBtn').textContent = 'Save Changes';
     document.getElementById('placesDayLabel').style.display = '';
-    const _placesDayInp = document.getElementById('placesDayInput'); _placesDayInp.style.display = ''; _placesDayInp.value = toInputDate(activeTrip, activeDay);
+    const di = document.getElementById('placesDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
     document.getElementById('placesName').value     = item.name || '';
     document.getElementById('placesLocation').value = item.location || '';
     document.getElementById('placesDetails').value  = (item.details || []).join('\n');
     document.getElementById('placesImageInput').value = '';
-
     const grid = document.getElementById('placesImagePreviewGrid');
     grid.innerHTML = '';
-    placesModal_images.forEach((img, i) => {
-      const thumb = document.createElement('div'); thumb.className = 'preview-thumb'; thumb.dataset.idx = i;
-      const imgEl = document.createElement('img'); imgEl.src = img.dataUrl;
-      const rb = document.createElement('button'); rb.className = 'remove-img'; rb.innerHTML = '&#10005;';
-      rb.onclick = ev => { ev.stopPropagation(); placesModal_images.splice(parseInt(thumb.dataset.idx),1); thumb.remove(); grid.querySelectorAll('.preview-thumb').forEach((t,j)=>t.dataset.idx=j); };
-      thumb.appendChild(imgEl); thumb.appendChild(rb); grid.appendChild(thumb);
-    });
-
+    placesModal_images.forEach((img, i) => addPlacesImagePreview(img.dataUrl, i));
     document.getElementById('placesModalOverlay').classList.add('open');
     setTimeout(() => document.getElementById('placesName').focus(), 60);
   }
@@ -6345,7 +6254,6 @@
   let mealModal_container = null;
   let mealModal_images = [];
   let mealModal_editItem = null;
-  let mealModal_editCard = null;
   let mealModal_catDay = null;       // set when adding from category view
   let mealModal_catRerender = null;
 
@@ -6355,7 +6263,6 @@
     mealModal_container = container;
     mealModal_images = [];
     mealModal_editItem = null;
-    mealModal_editCard = null;
 
     document.getElementById('mealTypeRow').style.display = 'none';
     document.getElementById('mealModalTitle').textContent =
@@ -6370,6 +6277,7 @@
     document.getElementById('mealImageInput').value = '';
     mealModal_catDay = null;
     mealModal_catRerender = null;
+    _renderPeopleChips(_tripTravelerNames());
 
     document.getElementById('mealModalOverlay').classList.add('open');
     setTimeout(() => document.getElementById('mealLocation').focus(), 60);
@@ -6378,97 +6286,43 @@
   function closeMealModal() {
     document.getElementById('mealModalOverlay').classList.remove('open');
     mealModal_editItem = null;
-    mealModal_editCard = null;
     mealModal_catDay = null;
     mealModal_catRerender = null;
     document.getElementById('mealTypeRow').style.display = 'none';
   }
 
   function saveMealEntry() {
-    const location = document.getElementById('mealLocation').value.trim();
-    const locationDetail = document.getElementById('mealLocationDetail').value.trim();
+    const name = document.getElementById('mealLocation').value.trim();
+    const location = document.getElementById('mealLocationDetail').value.trim();
     const details = document.getElementById('mealDetails').value.trim();
-    if (!location && !details && mealModal_images.length === 0) return;
-
-    const detailLines = details ? details.split('\n').filter(l => l.trim()) : [];
-
-    // Check if day changed (edit mode only)
-    const _mealDayInputEl = document.getElementById('mealDayInput');
-    if (mealModal_editItem && _mealDayInputEl && _mealDayInputEl.style.display !== 'none' && _mealDayInputEl.value) {
-      const _targetDate = new Date(_mealDayInputEl.value + 'T00:00:00');
-      const _newDay = Math.round((_targetDate - _ensureDateObj(trips[activeTrip].start)) / 86400000);
-      if (_newDay !== activeDay) {
-        const doMove = () => {
-          const _ci = mealModal_array.indexOf(mealModal_editItem);
-          if (_ci !== -1) mealModal_array.splice(_ci, 1);
-          // Extend trip if needed
-          if (_newDay < 0) {
-            const daysToAdd = -_newDay;
-            trips[activeTrip].start = new Date(_ensureDateObj(trips[activeTrip].start).getTime() - daysToAdd * 86400000);
-            trips[activeTrip].totalDays += daysToAdd;
-            // Shift all data keys
-            const _old = allTripData[activeTrip]; const _new = {};
-            Object.keys(_old).forEach(k => { _new[parseInt(k)+daysToAdd] = _old[k]; });
-            allTripData[activeTrip] = _new;
-            (allTripLodging[activeTrip]||[]).forEach(l => { l.checkInIdx += daysToAdd; l.checkOutIdx += daysToAdd; });
-            const _adjustedDay = 0; ensureDaySkeleton(activeTrip, _adjustedDay);
-            mealModal_editItem.name = location || '(no name)'; mealModal_editItem.location = locationDetail;
-            mealModal_editItem.details = detailLines; mealModal_editItem.images = mealModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][_adjustedDay].food[mealModal_meal].push(mealModal_editItem);
-          } else if (_newDay >= trips[activeTrip].totalDays) {
-            trips[activeTrip].totalDays = _newDay + 1;
-            ensureDaySkeleton(activeTrip, _newDay);
-            mealModal_editItem.name = location || '(no name)'; mealModal_editItem.location = locationDetail;
-            mealModal_editItem.details = detailLines; mealModal_editItem.images = mealModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][_newDay].food[mealModal_meal].push(mealModal_editItem);
-          } else {
-            ensureDaySkeleton(activeTrip, _newDay);
-            mealModal_editItem.name = location || '(no name)'; mealModal_editItem.location = locationDetail;
-            mealModal_editItem.details = detailLines; mealModal_editItem.images = mealModal_images.map(i => i.dataUrl);
-            allTripData[activeTrip][_newDay].food[mealModal_meal].push(mealModal_editItem);
-          }
-          totalDays = trips[activeTrip].totalDays; tripStart = trips[activeTrip].start;
-          if (_newDay < 0) activeDay = 0; else activeDay = Math.min(_newDay, trips[activeTrip].totalDays - 1);
-          closeMealModal(); renderDateTabs(); renderDayContent();
-        };
-        if (_newDay >= 0 && _newDay < trips[activeTrip].totalDays) {
-          doMove();
-        } else {
-          _promptAddDay(_mealDayInputEl.value, doMove);
-        }
-        return;
-      }
-    }
-    if (mealModal_editItem) {
-      // ── Edit mode: update data then re-render ──
-      mealModal_editItem.name = location || '(no name)';
-      mealModal_editItem.location = locationDetail;
-      mealModal_editItem.details = detailLines;
-      mealModal_editItem.images = mealModal_images.map(i => i.dataUrl);
-      closeMealModal();
-      renderDayContent();
-      return;
-    }
-
-    const entry = {
-      name: location || '(no name)',
-      location: locationDetail,
-      details: detailLines,
-      images: mealModal_images.map(i => i.dataUrl)
+    if (!name && !details && mealModal_images.length === 0) return;
+    const fields = {
+      name: name || '(no name)',
+      location,
+      details: details ? details.split('\n').filter(l => l.trim()) : [],
+      images: mealModal_images.map(i => i.dataUrl),
+      people: _selectedPeople()
     };
 
-    // Category view path
-    if (mealModal_catDay) {
-      const mealKey = document.getElementById('mealTypeSelect').value;
-      mealModal_catDay.food[mealKey].push(entry);
+    const item = mealModal_editItem;
+    if (item) {
+      const mealKey = mealModal_meal;
+      if (_handleEditDate('mealDayInput', item, mealModal_array, d => d.food[mealKey],
+            () => Object.assign(item, fields), closeMealModal)) return;
+      Object.assign(item, fields);
       closeMealModal();
-      if (mealModal_catRerender) mealModal_catRerender();
+      _afterChange();
       return;
     }
 
-    mealModal_array.push(entry);
+    const rerender = mealModal_catRerender;
+    if (mealModal_catDay) {
+      mealModal_catDay.food[document.getElementById('mealTypeSelect').value].push(fields);
+    } else {
+      (mealModal_array || ensureDaySkeleton(activeTrip, activeDay).food[mealModal_meal]).push(fields);
+    }
     closeMealModal();
-    renderDayContent();
+    if (rerender) rerender(); else _afterChange();
   }
 
   // Image upload handling
@@ -7086,6 +6940,7 @@
   function _updateMobileTabs() {
     const has = !!(activeTrip && trips[activeTrip]) && currentView !== 'account';
     document.body.classList.toggle('has-trip', has);
+    document.body.classList.toggle('view-day', has && currentView === 'day');
     const cur = _tabMap[currentView];
     document.querySelectorAll('#mobileTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === cur));
   }
@@ -7106,6 +6961,52 @@
       const orig = window[n]; if (typeof orig !== 'function') return;
       window[n] = function(...a) { const r = orig.apply(this, a); _updateMobileTabs(); return r; };
     });
+
+
+  // ══ Quick add ══ (its markup sits after this script, so wire it up once the page has parsed)
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('quickAddBtn');
+    const menu = document.getElementById('quickAddMenu');
+    const photos = document.getElementById('quickAddPhotos');
+    const setOpen = open => {
+      menu.hidden = !open; btn.setAttribute('aria-expanded', open); btn.classList.toggle('open', open);
+      if (open) document.getElementById('quickAddLabel').textContent = 'Add to ' + formatDate(dateForIndex(activeDay));
+    };
+    btn.addEventListener('click', e => { e.stopPropagation(); setOpen(menu.hidden); });
+    document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) setOpen(false); });
+    menu.addEventListener('click', e => {
+      const b = e.target.closest('[data-add]'); if (!b) return;
+      setOpen(false);
+      const kind = b.dataset.add;
+      const day = ensureDaySkeleton(activeTrip, activeDay);
+      if (MEAL_KEYS.includes(kind)) openMealModal(kind, day.food[kind], null);
+      else if (kind === 'activity') { openActivityModal(day.activities, null); activityModal_catRerender = null; }
+      else if (kind === 'place') { openPlacesModal(day.places, null); placesModal_catRerender = null; }
+      else if (kind === 'stay') { openLodgingModal(getTripLodging(), null, activeDay); lodgingModal_catRerender = null; }
+      else if (kind === 'photos') photos.click();
+    });
+    photos.addEventListener('change', () => { const f = Array.from(photos.files); photos.value = ''; _addDayPhotosAutoSort(f, activeDay); });
+  });
+
+  // ══ Open to today when a trip is under way ══
+  function _openToTodayOrAccount() {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    for (const id of Object.keys(trips)) {
+      const s = _ensureDateObj(trips[id].start);
+      const idx = Math.round((today - new Date(s.getFullYear(), s.getMonth(), s.getDate())) / 86400000);
+      if (idx >= 0 && idx < trips[id].totalDays) {
+        const sub = document.getElementById('subnav-' + id);
+        showTimelineView(sub ? sub.children[0] : null, id);
+        activeDay = idx;
+        renderDateTabs();
+        renderDayContent();
+        document.querySelector('.date-tab.active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+        return;
+      }
+    }
+    showAccountView();
+  }
 
   // Async init — load from IndexedDB if available, then render
   (async () => {
@@ -7135,9 +7036,25 @@
     sortTrips('newest');
     document.getElementById('tripSortSelect').value = 'newest';
     renderAll();
-    showAccountView();
+    _openToTodayOrAccount();
   })();
 </script>
+  <!-- Quick add (Daily Details) -->
+  <button class="fab" id="quickAddBtn" type="button" aria-label="Add to this day" aria-expanded="false">+</button>
+  <div class="fab-menu" id="quickAddMenu" hidden>
+    <div class="fab-menu-label" id="quickAddLabel">Add to this day</div>
+    <div class="fab-menu-grid">
+      <button type="button" data-add="breakfast">Breakfast</button>
+      <button type="button" data-add="lunch">Lunch</button>
+      <button type="button" data-add="dinner">Dinner</button>
+      <button type="button" data-add="snacks">Snacks</button>
+      <button type="button" data-add="activity">Activity</button>
+      <button type="button" data-add="place">Place</button>
+      <button type="button" data-add="stay">Stay</button>
+      <button type="button" data-add="photos">Photos</button>
+    </div>
+  </div>
+  <input type="file" id="quickAddPhotos" accept="image/*" multiple hidden>
   <!-- dotMenu portal -->
   <div id="dotMenu" style="display:none; position:fixed; background:var(--sidebar-bg); border:1px solid rgba(200,169,110,0.3); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.35); z-index:10000; width:max-content; padding:4px 0;">
     <button onclick="openModal();closeDotMenu();" class="dot-menu-item">New Trip</button>
