@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v47 -->
+<!-- myTrips v48 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v47</title>
+<title>myTrips v48</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2217,13 +2217,38 @@
   }
   @media (hover: hover) { .card-actions { opacity: 0; } .card:hover .card-actions, .card:focus-within .card-actions { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .fab, .app-toast { transition: none; } }
+
+  /* ══ v48 ══ */
+  /* Upload box on cards is smaller than a photo; it also follows existing photos */
+  .card .photo-box { width: 64px; height: 52px; font-size: 1.15rem; border-width: 1.5px; }
+  .card-images .photo-box { align-self: flex-start; }
+  /* Meal sub-section arrows */
+  .subsection-header .chevron { margin-left: auto; color: var(--text-muted); font-size: 0.6rem; transition: transform 0.2s; }
+  .subsection-header.open .chevron { transform: rotate(180deg); }
+  /* Reorder arrows: small, bottom-right corner of the card */
+  .card { position: relative; }
+  .card:has(> .reorder-btns) { padding-bottom: 34px; }
+  .card > .reorder-btns { position: absolute; right: 10px; bottom: 8px; flex-direction: row !important; gap: 4px !important; margin: 0 !important; }
+  .card > .reorder-btns button { width: 22px !important; height: 18px !important; font-size: 9px !important; padding: 0 !important; }
+  @media (max-width: 760px) {
+    /* Section header bars match the phone side padding, so the page is never wider than the screen */
+    .section-sticky { margin-left: -14px; margin-right: -14px; padding-left: 14px; padding-right: 14px; }
+    .subsection-sticky { margin-right: -14px; padding-right: 14px; }
+    .day-content { overflow-x: hidden; }
+    .card .photo-box { width: 56px; height: 44px; }
+    .card > .reorder-btns button { width: 26px !important; height: 20px !important; font-size: 10px !important; }
+    /* Smaller header buttons */
+    .menu-toggle { width: 32px; height: 32px; min-width: 32px !important; font-size: 1rem; border-radius: 7px; }
+    .user-badge { width: 30px; height: 30px; line-height: 30px; }
+    .user-badge::first-letter { font-size: 0.8rem; }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v47</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v48</span></h1>
   <div class="user-badge" id="userBadge" onclick="showAccountView()">Matt</div>
 </header>
 
@@ -3693,7 +3718,7 @@
     stickyWrap.className = 'subsection-sticky';
     const header = document.createElement('div');
     header.className = 'subsection-header' + (startOpen ? ' open' : '');
-    header.innerHTML = `<h3>${title}</h3>`;
+    header.innerHTML = `<h3>${title}</h3><span class="chevron">▼</span>`;
     header.onclick = () => toggle(header);
     stickyWrap.appendChild(header);
     const body = document.createElement('div');
@@ -3751,9 +3776,10 @@
     const loc = item.location ? `<p class="lodging-location">${esc(item.location)}</p>` : '';
     if (kind === 'activity') {
       const desc = (item.description || '').split('\n').filter(l => l.trim()).map(l => `<p>${esc(l)}</p>`).join('');
-      return `<h3>${esc(item.name)}</h3>${loc}${desc}
-        <div class="stat"><span>Distance:</span> ${esc(item.distance || '—')}</div>
-        <div class="stat"><span>Duration:</span> ${esc(_durationText(item))}</div>`;
+      const dur = _durationText(item);
+      const dist = item.distance ? `<div class="stat"><span>Distance:</span> ${esc(item.distance)}</div>` : '';
+      const durHtml = dur !== '—' ? `<div class="stat"><span>Duration:</span> ${esc(dur)}</div>` : '';
+      return `<h3>${esc(item.name)}</h3>${loc}${desc}${dist}${durHtml}`;
     }
     let badge = '';
     if (kind === 'lodging' && item.checkInIdx != null && item.checkOutIdx != null) {
@@ -3776,6 +3802,7 @@
         img.onclick = () => openCardGallery(src, item.images, item.name);
         col.appendChild(img);
       });
+      col.appendChild(makePhotoBox(item, null, _afterChange));
       return col;
     }
     if (kind === 'activity' && item.hasMap) {
