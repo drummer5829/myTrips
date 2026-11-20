@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v50 -->
+<!-- myTrips v51 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v50</title>
+<title>myTrips v51</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2300,13 +2300,33 @@
   .order-add:hover { border-color: var(--accent); color: var(--accent); }
   .order-line { display: flex; gap: 6px; align-items: baseline; }
   .people-tag.who { flex-shrink: 0; color: var(--text); font-weight: 600; }
+
+  /* ══ v51: multi-select people per order line ══ */
+  .order-who-wrap { position: relative; flex: 0 0 auto; width: 118px; max-width: 38%; }
+  .order-who { width: 100% !important; min-width: 0 !important; padding: 9px 22px 9px 10px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; text-align: left; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
+  .order-who-wrap .order-who { max-width: none !important; flex: none; display: block; }
+  .order-who::after { content: '▾'; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.75rem; }
+  .order-who.empty { color: var(--text-muted); }
+  .order-pop { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; min-width: 170px; max-height: 260px; overflow-y: auto;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 28px rgba(0,0,0,0.18); padding: 6px; }
+  .order-pop[hidden] { display: none; }
+  .order-check { display: flex; align-items: center; gap: 10px; padding: 8px 8px; border-radius: 6px; font-size: 0.92rem; color: var(--text); cursor: pointer; }
+  .order-check:hover { background: var(--bg); }
+  .order-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex-shrink: 0; }
+  .order-check:first-child:has(input[data-all]) { border-bottom: 1px solid var(--border); border-radius: 6px 6px 0 0; margin-bottom: 2px; font-weight: 600; }
+  .order-done { display: block; width: 100% !important; min-width: 0 !important; margin-top: 4px; padding: 8px; border: none; border-top: 1px solid var(--border);
+    background: none; color: var(--accent-dark, var(--accent)); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+  .order-pop-hint { font-size: 0.82rem; color: var(--text-muted); margin: 6px; }
+  .people-tag.who { white-space: normal; }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v50</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v51</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -2432,8 +2452,6 @@
       <label class="field-label">Time <span class="field-opt">(optional)</span></label>
       <input type="time" id="mealTime" class="meal-input time-input" />
 
-      <label class="field-label">Who was there</label>
-      <div class="people-chips" id="mealPeople"></div>
       <label class="field-label">Orders &amp; notes</label>
       <div class="order-rows" id="mealOrderRows"></div>
       <button type="button" class="order-add" id="mealOrderAdd">+ Add line</button>
@@ -3612,7 +3630,6 @@
       document.getElementById('imagePreviewGrid').innerHTML = '';
       document.getElementById('mealImageInput').value = '';
       document.getElementById('mealTypeSelect').value = 'breakfast';
-      _renderPeopleChips(_tripTravelerNames());
       document.getElementById('mealModalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('mealLocation').focus(), 60);
 
@@ -3857,12 +3874,11 @@
     if (kind === 'lodging' && item.checkInIdx != null && item.checkOutIdx != null) {
       badge = `<div class="lodging-dates-badge">${formatDate(dateForIndex(item.checkInIdx))} → ${formatDate(dateForIndex(item.checkOutIdx))}</div>`;
     }
-    const people = (kind === 'food' && item.people && item.people.length)
-      ? `<div class="people-tags">${item.people.map(p => `<span class="people-tag">${esc(p)}</span>`).join('')}</div>` : '';
+    const people = '';
     const details = kind === 'food'
-      ? _orderLinesOf(item).map(l => l.who
-          ? `<p class="order-line"><span class="people-tag who">${esc(l.who)}</span> ${esc(l.text)}</p>`
-          : `<p>${esc(l.text)}</p>`).join('')
+      ? _orderLinesOf(item).map(l => { const lab = _peopleLabel(l.people); return lab
+          ? `<p class="order-line"><span class="people-tag who">${esc(lab)}</span> ${esc(l.text)}</p>`
+          : `<p>${esc(l.text)}</p>`; }).join('')
       : (item.details || []).map(d => `<p>${esc(d)}</p>`).join('');
     return `${timeHtml}<h3>${esc(item.name)}</h3>${loc}${badge}${people}${details}`;
   }
@@ -5742,32 +5758,6 @@
     const t = (allTripMeta[activeTrip] && allTripMeta[activeTrip].travelers) || [];
     return t.map((n, i) => (n && String(n).trim()) || `Traveler ${i + 1}`);
   }
-  function _renderPeopleChips(selected) {
-    const box = document.getElementById('mealPeople');
-    if (!box) return;
-    box.innerHTML = '';
-    const names = _tripTravelerNames();
-    // keep tags for people no longer on the trip list
-    (selected || []).forEach(n => { if (!names.includes(n)) names.push(n); });
-    if (!names.length) {
-      box.innerHTML = '<span class="people-empty">Add travelers on the trip Summary page to tag them here.</span>';
-      return;
-    }
-    names.forEach(n => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'people-chip' + ((selected || []).includes(n) ? ' on' : '');
-      b.textContent = n;
-      b.setAttribute('aria-pressed', b.classList.contains('on'));
-      b.onclick = () => { b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')); };
-      box.appendChild(b);
-    });
-  }
-  function _selectedPeople() {
-    return Array.from(document.querySelectorAll('#mealPeople .people-chip.on')).map(b => b.textContent);
-  }
-
-
   // ══ Photos: file each photo under the day it was taken (EXIF capture date) ══
   async function _exifDate(file) {
     try {
@@ -5843,42 +5833,101 @@
 
 
   document.getElementById('mealOrderAdd').addEventListener('click', () => _addOrderRow(null, true));
-  // ══ Meal order lines: who ordered what ══
+  // ══ Meal order lines: each line has a multi-select of who ordered it ══
   const _SHARED_WORDS = ['shared', 'everyone', 'all', 'table', 'group'];
-  // Turn an old "Abby: sardines" text line into {who, text} when the prefix names travelers
-  function _parseOrderLine(line, names) {
+  function _meName() { return (typeof accountData !== 'undefined' && accountData.firstName) || ''; }
+
+  // "Laura / Dad", "Shared", "Matt" → list of trip travelers
+  function _whoToPeople(who, travelers) {
+    if (!who) return [];
+    const parts = String(who).split(/\s*(?:\/|&|,|\band\b)\s*/i).filter(Boolean);
+    if (parts.some(p => _SHARED_WORDS.includes(p.toLowerCase()))) return travelers.slice();
+    const me = _meName().toLowerCase();
+    return parts.map(p => {
+      const hit = travelers.find(t => t.toLowerCase() === p.toLowerCase());
+      if (hit) return hit;
+      if (me && p.toLowerCase() === me && travelers.includes('Me')) return 'Me';
+      return p;
+    });
+  }
+  function _peopleLabel(people) {
+    const travelers = _tripTravelerNames();
+    if (!people || !people.length) return '';
+    if (travelers.length > 1 && travelers.every(t => people.includes(t))) return 'All';
+    const rank = n => { const i = travelers.indexOf(n); return i === -1 ? 999 : i; };
+    return people.slice().sort((a, b) => rank(a) - rank(b)).join(', ');
+  }
+  // Old "Abby: sardines" text → {people, text} when the prefix names travelers
+  function _parseOrderLine(line, travelers) {
     const m = /^([^:]{1,40}):\s*(.+)$/.exec(String(line || ''));
-    if (!m) return { who: '', text: String(line || '') };
-    const prefix = m[1].trim();
-    const lower = names.map(n => n.toLowerCase());
-    const parts = prefix.split(/\s*(?:\/|&|,|\band\b)\s*/i).filter(Boolean);
-    const ok = parts.length && parts.every(p => lower.includes(p.toLowerCase()) || _SHARED_WORDS.includes(p.toLowerCase()));
-    return ok ? { who: prefix, text: m[2].trim() } : { who: '', text: String(line) };
+    if (!m) return { people: [], text: String(line || '') };
+    const known = travelers.map(n => n.toLowerCase()).concat(_meName() ? [_meName().toLowerCase()] : []);
+    const parts = m[1].trim().split(/\s*(?:\/|&|,|\band\b)\s*/i).filter(Boolean);
+    const ok = parts.length && parts.every(p => known.includes(p.toLowerCase()) || _SHARED_WORDS.includes(p.toLowerCase()));
+    return ok ? { people: _whoToPeople(m[1].trim(), travelers), text: m[2].trim() } : { people: [], text: String(line) };
   }
   function _orderLinesOf(item) {
-    if (Array.isArray(item.lines)) return item.lines;
-    const names = _tripTravelerNames();
-    if (typeof accountData !== 'undefined' && accountData.firstName) names.push(accountData.firstName);   // "Me" is often written by name
-    return (item.details || []).map(d => _parseOrderLine(d, names));
+    const travelers = _tripTravelerNames();
+    if (Array.isArray(item.lines)) {
+      return item.lines.map(l => ({ text: l.text || '', people: Array.isArray(l.people) ? l.people : _whoToPeople(l.who, travelers) }));
+    }
+    return (item.details || []).map(d => _parseOrderLine(d, travelers));
   }
-  function _orderLineText(l) { return l.who ? `${l.who}: ${l.text}` : l.text; }
+  function _orderLineText(l) { const lab = _peopleLabel(l.people); return lab ? `${lab}: ${l.text}` : l.text; }
 
   function _addOrderRow(line, focus) {
     const box = document.getElementById('mealOrderRows');
     const row = document.createElement('div');
     row.className = 'order-row';
-    const sel = document.createElement('select');
-    sel.className = 'order-who';
-    sel.setAttribute('aria-label', 'Who');
-    const opts = [['', '—'], ...(_tripTravelerNames().map(n => [n, n])), ['Shared', 'Shared']];
-    if (line && line.who && !opts.some(o => o[0] === line.who)) opts.push([line.who, line.who]);
-    opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); });
-    sel.value = (line && line.who) || '';
-    sel.onchange = () => {   // picking a person also marks them as there
-      const chip = [...document.querySelectorAll('#mealPeople .people-chip')].find(c => c.textContent === sel.value);
-      if (chip && !chip.classList.contains('on')) { chip.classList.add('on'); chip.setAttribute('aria-pressed', 'true'); }
-      inp.focus();
+    row._people = new Set((line && line.people) || []);
+    const travelers = _tripTravelerNames();
+    const names = travelers.slice();
+    row._people.forEach(p => { if (!names.includes(p)) names.push(p); });   // keep names no longer on the trip
+
+    const wrap = document.createElement('div'); wrap.className = 'order-who-wrap';
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'order-who';
+    btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
+    const pop = document.createElement('div'); pop.className = 'order-pop'; pop.hidden = true;
+    const setLabel = () => {
+      const lab = _peopleLabel([...row._people]);
+      btn.textContent = lab || 'Who?';
+      btn.classList.toggle('empty', !lab);
     };
+    const sync = () => {
+      pop.querySelectorAll('input[data-name]').forEach(cb => { cb.checked = row._people.has(cb.dataset.name); });
+      const all = pop.querySelector('input[data-all]');
+      if (all) all.checked = travelers.length > 0 && travelers.every(t => row._people.has(t));
+      setLabel();
+    };
+    if (!names.length) {
+      pop.innerHTML = '<p class="order-pop-hint">Add travelers on the trip Summary page to tag them here.</p>';
+    } else {
+      const mk = (text, attrs) => {
+        const lab = document.createElement('label'); lab.className = 'order-check';
+        const cb = document.createElement('input'); cb.type = 'checkbox';
+        Object.entries(attrs).forEach(([k, v]) => cb.dataset[k] = v);
+        lab.append(cb, document.createTextNode(text));
+        pop.appendChild(lab);
+        return cb;
+      };
+      if (travelers.length > 1) mk('All', { all: '1' }).onchange = e => { travelers.forEach(t => e.target.checked ? row._people.add(t) : row._people.delete(t)); sync(); };
+      names.forEach(n => { mk(n, { name: n }).onchange = e => { e.target.checked ? row._people.add(n) : row._people.delete(n); sync(); }; });
+    }
+    if (names.length) {
+      const done = document.createElement('button'); done.type = 'button'; done.className = 'order-done'; done.textContent = 'Done';
+      done.onclick = () => { pop.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.focus(); };
+      pop.appendChild(done);
+    }
+    btn.onclick = e => {
+      e.stopPropagation();
+      const open = pop.hidden;
+      document.querySelectorAll('.order-pop').forEach(p => { p.hidden = true; });
+      document.querySelectorAll('.order-who').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      pop.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    };
+    pop.addEventListener('click', e => e.stopPropagation());
+    wrap.append(btn, pop);
+
     const inp = document.createElement('input');
     inp.type = 'text'; inp.className = 'meal-input order-text'; inp.maxLength = 160;
     inp.placeholder = 'Dish, drink or note';
@@ -5887,10 +5936,16 @@
     const del = document.createElement('button');
     del.type = 'button'; del.className = 'order-del'; del.setAttribute('aria-label', 'Remove line'); del.textContent = '×';
     del.onclick = () => { row.remove(); if (!box.children.length) _addOrderRow(null, false); };
-    row.append(sel, inp, del);
+    row.append(wrap, inp, del);
     box.appendChild(row);
-    if (focus) sel.focus();
+    sync();
+    if (focus) inp.focus();
   }
+  // Close any open picker when tapping elsewhere
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.order-pop').forEach(p => { p.hidden = true; });
+    document.querySelectorAll('.order-who').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  });
   function _renderOrderRows(lines) {
     const box = document.getElementById('mealOrderRows');
     box.innerHTML = '';
@@ -5898,7 +5953,8 @@
   }
   function _readOrderRows() {
     return [...document.querySelectorAll('#mealOrderRows .order-row')]
-      .map(r => ({ who: r.querySelector('.order-who').value, text: r.querySelector('.order-text').value.trim() }))
+      .map(r => { const t = _tripTravelerNames(); const rank = n => { const i = t.indexOf(n); return i === -1 ? 999 : i; };
+        return { people: [...r._people].sort((a, b) => rank(a) - rank(b)), text: r.querySelector('.order-text').value.trim() }; })
       .filter(l => l.text);
   }
 
@@ -5914,7 +5970,7 @@
       lines,
       details: lines.map(_orderLineText),   // plain-text copy used by search, highlights and backups
       images: mealModal_images.map(i => i.dataUrl),
-      people: _selectedPeople()
+      people: [...new Set(lines.flatMap(l => l.people))]
     };
   }
   function _activityFields() {
@@ -6233,7 +6289,6 @@
     document.getElementById('mealDupBtn').hidden = false;
     _renderOrderRows(_orderLinesOf(item));
     document.getElementById('mealImageInput').value = '';
-    _renderPeopleChips(item.people || []);
     const grid = document.getElementById('imagePreviewGrid');
     grid.innerHTML = '';
     mealModal_images.forEach((img, i) => addImagePreview(img.dataUrl, i));
@@ -6579,7 +6634,6 @@
     document.getElementById('mealImageInput').value = '';
     mealModal_catDay = null;
     mealModal_catRerender = null;
-    _renderPeopleChips(_tripTravelerNames());
 
     document.getElementById('mealModalOverlay').classList.add('open');
     setTimeout(() => document.getElementById('mealLocation').focus(), 60);
