@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v53 -->
+<!-- myTrips v54 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v53</title>
+<title>myTrips v54</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2334,13 +2334,9 @@
   .meal-modal input, .meal-modal select, .meal-modal textarea { min-width: 0; max-width: 100%; }
 
   /* ══ v53: softer cards + gentle motion (each switchable in Account → Appearance) ══ */
-  body:not(.classic-cards) .card { border-radius: 16px; border-color: color-mix(in srgb, var(--border) 55%, transparent);
-    box-shadow: 0 1px 2px rgba(60,40,10,0.05), 0 6px 18px rgba(60,40,10,0.05); border-left: 4px solid var(--stripe, var(--accent)); }
+  body:not(.classic-cards) .card { border-color: color-mix(in srgb, var(--border) 55%, transparent);
+    box-shadow: 0 1px 2px rgba(60,40,10,0.05), 0 6px 18px rgba(60,40,10,0.05); }
   body:not(.classic-cards) .card:hover { box-shadow: 0 2px 4px rgba(60,40,10,0.06), 0 10px 26px rgba(60,40,10,0.09); }
-  body:not(.classic-cards) .card[data-kind="food"] { --stripe: #d9a05b; }
-  body:not(.classic-cards) .card[data-kind="activity"] { --stripe: #6f9a8d; }
-  body:not(.classic-cards) .card[data-kind="place"] { --stripe: #7f8fb5; }
-  body:not(.classic-cards) .card[data-kind="lodging"] { --stripe: #a98ab3; }
   body:not(.no-motion) .view-enter { animation: viewEnter 0.28s ease-out both; }
   @keyframes viewEnter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   body:not(.no-motion) .card { transition: box-shadow 0.2s, transform 0.2s; }
@@ -2362,7 +2358,7 @@
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v53</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v54</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -5431,7 +5427,7 @@
     const t = document.createElement('div'); t.className = 'account-section-title'; t.textContent = 'Appearance'; body.appendChild(t);
     const wrap = document.createElement('div');
     const rows = [
-      ['Softer cards with category stripes', 'Rounded cards, a colored edge for food, activities, places and lodging.', 'classicCards', true],
+      ['Softer card borders and shadows', 'Lighter borders and gentler shadows on cards.', 'classicCards', true],
       ['Gentle motion', 'Short fades when you change day or tab. Also off if your phone has Reduce Motion on.', 'noMotion', true]
     ];
     rows.forEach(([title, desc, key]) => {
