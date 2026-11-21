@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v54 -->
+<!-- myTrips v55 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v54</title>
+<title>myTrips v55</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2227,8 +2227,8 @@
   .subsection-header.open .chevron { transform: rotate(180deg); }
   /* Reorder arrows: small, bottom-right corner of the card */
   .card { position: relative; }
-  .card:has(> .reorder-btns) { padding-bottom: 34px; }
-  .card > .reorder-btns { position: absolute; right: 10px; bottom: 8px; flex-direction: row !important; gap: 4px !important; margin: 0 !important; }
+  .card:has(> .reorder-btns) .card-images { padding-right: 62px; }
+  .card > .reorder-btns { position: absolute; right: 14px; bottom: 14px; flex-direction: row !important; gap: 4px !important; margin: 0 !important; }
   .card > .reorder-btns button { width: 22px !important; height: 18px !important; font-size: 9px !important; padding: 0 !important; }
   @media (max-width: 760px) {
     /* Section header bars match the phone side padding, so the page is never wider than the screen */
@@ -2352,13 +2352,20 @@
   .switch[aria-checked="true"] { background: var(--accent-dark); } .switch[aria-checked="true"]::after { transform: translateX(20px); }
   .appear-reset { margin-top: 10px; background: none; border: 1px dashed var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; }
   .appear-reset:hover { border-color: var(--accent); color: var(--accent-dark); }
+
+  /* ══ v55: iPhone time/date height, aligned order rows, arrows level with the + tile ══ */
+  .meal-input.time-input, input[type=date].meal-input, input[type=time].meal-input { min-height: 44px; height: 44px; display: block; width: 100%; max-width: 100% !important; line-height: 1.2; }
+  .order-row { align-items: flex-start; }
+  .order-who-wrap .order-who, .order-who { height: 44px; min-height: 44px; display: flex !important; align-items: center; padding-top: 0; padding-bottom: 0; }
+  textarea.order-text { min-height: 44px; padding-top: 11px; padding-bottom: 11px; }
+  .order-del { width: 36px !important; height: 44px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v54</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v55</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -2698,6 +2705,13 @@
 
   const months = ['Jan','Feb','Mar','Apr','May','June','July','Aug','Sep','Oct','Nov','Dec'];
 
+  // ── Calendar-date helpers: trips are stored as plain local dates (YYYY-MM-DD) so they never shift between time zones ──
+  function _sod(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+  function _ymd(d) { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); }
+  function _parseStart(v) {
+    if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(v + 'T00:00:00');
+    return _sod(v instanceof Date ? v : new Date(v));
+  }
   function dateForIndex(i) {
     const d = new Date(tripStart);
     d.setDate(d.getDate() + i);
@@ -3295,16 +3309,16 @@
 
   // Convert a JS Date to day index for the active trip
   function dateToIdx(tripId, date) {
-    const start = trips[tripId].start;
-    const diff = Math.round((date - start) / (1000 * 60 * 60 * 24));
+    const start = _sod(trips[tripId].start);
+    const diff = Math.round((_sod(date) - start) / (1000 * 60 * 60 * 24));
     return Math.max(0, Math.min(trips[tripId].totalDays - 1, diff));
   }
 
   // Format date as YYYY-MM-DD for <input type="date">
   function toInputDate(tripId, idx) {
-    const d = new Date(trips[tripId].start);
+    const d = _sod(trips[tripId].start);
     d.setDate(d.getDate() + idx);
-    return d.toISOString().slice(0, 10);
+    return _ymd(d);
   }
 
   const categoryIcons = { food: '🍽', activities: '🥾', lodging: '🏨', places: '📍' };
@@ -4841,8 +4855,7 @@
   // ── Sort sidebar trip groups ──
 
   function _ensureDateObj(val) {
-    if (val instanceof Date) return val;
-    return new Date(val);
+    return _parseStart(val);
   }
 
   function _promptAddDay(dateInputVal, onConfirm) {
@@ -5642,7 +5655,7 @@
     const today = new Date();
     const end = new Date(today);
     end.setDate(today.getDate() + 6);
-    const fmt = d => d.toISOString().slice(0, 10);
+    const fmt = _ymd;
     document.getElementById('tripStartDate').value = fmt(today);
     document.getElementById('tripEndDate').value = fmt(end);
     document.getElementById('tripNameInput').value = '';
@@ -5659,7 +5672,7 @@
     const startVal = document.getElementById('tripStartDate').value;
     const endVal   = document.getElementById('tripEndDate').value;
 
-    const start = startVal ? new Date(startVal + 'T00:00:00') : new Date();
+    const start = startVal ? new Date(startVal + 'T00:00:00') : _sod(new Date());
     let totalDays = 7;
     if (startVal && endVal) {
       const end = new Date(endVal + 'T00:00:00');
@@ -6011,8 +6024,9 @@
 
     const inp = document.createElement('textarea');
     inp.rows = 1; inp.className = 'meal-input order-text'; inp.maxLength = 160;
-    const grow = () => { inp.style.height = 'auto'; inp.style.height = inp.scrollHeight + 2 + 'px'; };
+    const grow = () => { if (!inp.clientWidth) return; inp.style.height = 'auto'; inp.style.height = Math.max(44, inp.scrollHeight + 2) + 'px'; };
     inp.addEventListener('input', grow);
+    let _lw = 0; new ResizeObserver(() => { const w = inp.clientWidth; if (w && w !== _lw) { _lw = w; grow(); } }).observe(inp);
     inp.placeholder = 'Dish, drink or note';
     inp.value = (line && line.text) || '';
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); _addOrderRow(null, true); } });
@@ -6147,13 +6161,13 @@
   }
 
   function _dayIdxFromInput(val) {
-    return Math.round((new Date(val + 'T00:00:00') - _ensureDateObj(trips[activeTrip].start)) / 86400000);
+    return Math.round((new Date(val + 'T00:00:00') - _sod(_ensureDateObj(trips[activeTrip].start))) / 86400000);
   }
 
   // Add days before the trip start, shifting every saved day and stay
   function _extendTripBack(n) {
     const t = trips[activeTrip];
-    t.start = new Date(_ensureDateObj(t.start).getTime() - n * 86400000);
+    { const ns = _sod(_ensureDateObj(t.start)); ns.setDate(ns.getDate() - n); t.start = ns; }
     t.totalDays += n;
     const old = allTripData[activeTrip] || {}, shifted = {};
     Object.keys(old).forEach(k => { shifted[parseInt(k) + n] = old[k]; });
@@ -6944,7 +6958,7 @@
     // Dates need special handling for JSON
     const serializeTrips = {};
     Object.entries(trips).forEach(([k, v]) => {
-      serializeTrips[k] = { ...v, start: v.start instanceof Date ? v.start.toISOString() : v.start };
+      serializeTrips[k] = { ...v, start: _ymd(_parseStart(v.start)) };
     });
     return {
       schemaVersion: SCHEMA_VERSION,
@@ -6962,7 +6976,7 @@
     // Restore Date objects from strings
     if (state.trips) {
       Object.values(state.trips).forEach(t => {
-        if (t.start && typeof t.start === 'string') t.start = new Date(t.start);
+        if (t.start) t.start = _parseStart(t.start);
       });
     }
     return state;
@@ -7008,7 +7022,7 @@
 
   function _tripBody(id) {
     const t = trips[id];
-    return { id, trip: { ...t, start: t.start instanceof Date ? t.start.toISOString() : t.start },
+    return { id, trip: { ...t, start: _ymd(_parseStart(t.start)) },
       meta: allTripMeta[id] || null, data: allTripData[id] || {}, lodging: allTripLodging[id] || [],
       bw: allBestWorstData[id] || null, bwq: allBWQuestions[id] || null };
   }
