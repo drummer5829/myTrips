@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v56 -->
+<!-- myTrips v57 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v56</title>
+<title>myTrips v57</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2374,13 +2374,25 @@
     border: 1px solid color-mix(in srgb, #c44 40%, var(--border)) !important; color: #b44 !important; background: none !important; }
   .day-header-actions .delete-day-btn:hover, .day-header-actions .delete-day-btn.confirming { background: #fff0f0 !important; border-color: #e88 !important; color: #c44 !important; }
   @media (min-width: 761px) { .day-header-actions { flex-basis: 250px; flex-shrink: 0; } }
+
+  /* ══ v57: phone — all five day buttons on one compact row ══ */
+  @media (max-width: 760px) {
+    .day-header-actions { flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; gap: 4px !important; }
+    .day-header-actions .dh-group { display: contents !important; }
+    .day-header-actions .dh-nav .day-nav-btn, .day-header-actions .dh-ec .day-nav-btn, .day-header-actions .delete-day-btn {
+      flex: 1 1 auto; width: auto !important; min-width: 0 !important; height: 30px; padding: 0 4px !important;
+      font-size: 0.7rem !important; white-space: nowrap; border-radius: 6px !important; }
+    .day-header-actions .delete-day-btn { order: 5; }
+    .day-header-actions .dh-nav .day-nav-btn:nth-child(1) { order: 1; } .day-header-actions .dh-nav .day-nav-btn:nth-child(2) { order: 2; }
+    .day-header-actions .dh-ec .day-nav-btn:nth-child(1) { order: 3; } .day-header-actions .dh-ec .day-nav-btn:nth-child(2) { order: 4; }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v56</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v57</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -4099,7 +4111,7 @@
         deleteDay(activeDay);
       } else {
         deleteDayBtn.dataset.confirming = 'true';
-        deleteDayBtn.textContent = 'Tap again to delete';
+        deleteDayBtn.textContent = 'Confirm?';
         deleteDayBtn.classList.add('confirming');
         setTimeout(() => {
           deleteDayBtn.dataset.confirming = 'false';
