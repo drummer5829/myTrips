@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v59 -->
+<!-- myTrips v60 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v59</title>
+<title>myTrips v60</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2402,13 +2402,33 @@
   .loc-time-row .meal-input { height: 44px; min-height: 44px; box-sizing: border-box; }
   .loc-time-row .time-input { width: 100%; }
   .card-info .entry-notes { font-style: italic; margin: 2px 0 4px; }
+
+  /* ══ v60: tighter headers, Add Day on two lines, consistent modal spacing, H&L sticky header fix ══ */
+  .date-tab-add { width: 46px; min-width: 46px; white-space: pre-line; line-height: 1.15; font-size: 0.72rem; padding: 6px 0; }
+  .meal-modal .field-label { margin-top: 8px; }
+  .meal-modal .meal-modal-header + .field-label, .meal-modal .meal-modal-header + div + .field-label, .meal-modal > .field-label:first-of-type { margin-top: 0; }
+  .meal-modal input, .meal-modal select, .meal-modal textarea { margin-bottom: 0; }
+  .loc-time-row { margin-top: 8px; }
+  .loc-time-row .field-label { margin-top: 0 !important; }
+  .cat-header-sticky { padding-top: 8px; padding-bottom: 8px; }
+  .cat-header { margin-bottom: 4px; }
+  .cat-title { font-size: 1.4rem; line-height: 1.2; }
+  .cat-header-sticky .food-filter-bar { margin: 6px 0 0 !important; gap: 6px; }
+  .cat-scroll-body, .photos-scroll-body { padding-top: 14px; }
+  @media (max-width: 760px) {
+    .cat-title { font-size: 1.25rem; }
+    .cat-scroll-body, .photos-scroll-body { padding-top: 10px; }
+    /* Highs & Lows: no padding above the sticky header row (rows used to show through it) */
+    .bw-scroll-body { padding: 0 0 28px; }
+    .bw-table-wrap { padding: 12px 14px 0; }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v59</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v60</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -3763,7 +3783,7 @@
     // Add day at start — always present on left
     const addStart = document.createElement('button');
     addStart.className = 'date-tab-add';
-    addStart.textContent = 'Add Day';
+    addStart.textContent = 'Add\nDay';
     addStart.title = 'Add day at start';
     addStart.onclick = addDayAtStart;
     tabs.appendChild(addStart);
@@ -3775,7 +3795,7 @@
     // Add day at end — always present on right
     const addEnd = document.createElement('button');
     addEnd.className = 'date-tab-add';
-    addEnd.textContent = 'Add Day';
+    addEnd.textContent = 'Add\nDay';
     addEnd.title = 'Add day at end';
     addEnd.onclick = addDayAtEnd;
     tabs.appendChild(addEnd);
