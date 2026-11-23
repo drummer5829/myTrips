@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v61 -->
+<!-- myTrips v62 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v61</title>
+<title>myTrips v62</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -242,7 +242,7 @@
     transition: border-color 0.18s;
   }
   .modal input:focus { border-color: var(--accent); }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: nowrap; margin-top: 16px; }
   .modal-actions button {
     padding: 9px 20px;
     border-radius: 8px;
@@ -2250,6 +2250,8 @@
   .field-opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
   .time-input { max-width: 160px; }
   .btn-duplicate { margin-right: auto; }
+  .modal-actions button { white-space: nowrap; flex: 0 0 auto; }
+  @media (max-width: 480px) { .modal-actions button { padding: 9px 12px; } }
   .btn-duplicate[hidden] { display: none !important; }
   .day-photo-del.confirming { opacity: 1 !important; width: auto !important; border-radius: 10px; padding: 0 8px; font-size: 0.72rem; background: #c44; }
   .app-toast { display: flex; align-items: center; gap: 14px; }
@@ -2446,7 +2448,7 @@
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v61</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v62</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -4498,18 +4500,101 @@
     const meta = body.meta || {};
     const mini = { allTripData: { x: body.data }, allTripLodging: { x: body.lodging } };
     if (_store.mode === 'db') await _embedPhotosForExport(mini);
-    const payload = {
-      trip: { name: trips[tripId].name || '', totalDays: trips[tripId].totalDays, start: _ymd(_parseStart(trips[tripId].start)) },
-      meta: { title: meta.title || '', details: meta.details || '', travelers: meta.travelers || [] },
-      days: mini.allTripData.x, lodging: mini.allTripLodging.x,
-      bw: getBWData(tripId), bwq: getBWQuestions(tripId)
+    const days = mini.allTripData.x || {}, lodging = mini.allTripLodging.x || [];
+    const trav = (meta.travelers || []).filter(Boolean);
+    const N = trips[tripId].totalDays, start = _parseStart(trips[tripId].start);
+    const bw = getBWData(tripId) || {}, bwq = getBWQuestions(tripId) || [];
+    const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const WD = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dt = i => { const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i); return d; };
+    const full = d => MN[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    const short = d => MN[d.getMonth()].slice(0, 3) + ' ' + d.getDate();
+    const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const ftime = t => { const m = /^(\d{1,2}):(\d{2})/.exec(t || ''); if (!m) return ''; let h = +m[1]; const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + m[2] + ' ' + ap; };
+    const dur = a => { const h = parseInt(a.durationH || 0), m = parseInt(a.durationM || 0), p = []; if (h) p.push(h + 'h'); if (m) p.push(m + 'm'); return p.length ? p.join(' ') : (a.duration || ''); };
+    const who = ppl => { if (!ppl || !ppl.length) return ''; if (trav.length && ppl.length >= trav.length && trav.every(t => ppl.indexOf(t) > -1)) return 'All'; return ppl.join(', '); };
+    const MEALS = [['breakfast', 'Breakfast'], ['lunch', 'Lunch'], ['dinner', 'Dinner'], ['snacks', 'Snacks']];
+    const dd = i => days[i] || { food: {}, activities: [], photos: [] };
+    let pid = 0;
+    const thumbs = (list, cap) => (list && list.length) ? '<div class="thumbs">' + list.map(src => '<img data-lb id="p' + (++pid) + '" loading="lazy" src="' + esc(src) + '" alt="' + esc(cap) + '">').join('') + '</div>' : '';
+    const firstId = {};   // key -> id of first image, for highlights
+    const card = (kind, it, extra, key) => {
+      let h = '<div class="card">';
+      if (it.time) h += '<div class="t">' + esc(ftime(it.time)) + '</div>';
+      h += '<h3>' + esc(it.name) + '</h3>';
+      if (it.location) h += '<div class="loc">' + esc(it.location) + '</div>';
+      if (extra) h += extra;
+      if (kind === 'food') {
+        if (it.notes) h += '<p class="notes">' + esc(it.notes) + '</p>';
+        if (Array.isArray(it.lines) && it.lines.length) it.lines.forEach(l => { const w = who(l.people); h += w ? '<p class="line"><span class="who">' + esc(w) + '</span><span>' + esc(l.text) + '</span></p>' : '<p>' + esc(l.text) + '</p>'; });
+        else (it.details || []).forEach(d => { h += '<p>' + esc(d) + '</p>'; });
+      } else if (kind === 'activity') {
+        String(it.description || '').split('\n').filter(l => l.trim()).forEach(l => { h += '<p>' + esc(l) + '</p>'; });
+        if (it.distance) h += '<p><b>Distance:</b> ' + esc(it.distance) + '</p>';
+        const d = dur(it); if (d) h += '<p><b>Duration:</b> ' + esc(d) + '</p>';
+      } else (it.details || []).forEach(d => { h += '<p>' + esc(d) + '</p>'; });
+      const before = pid;
+      h += thumbs(it.images, it.name);
+      if (key && pid > before) firstId[key] = 'p' + (before + 1);
+      return h + '</div>';
     };
-    const data = JSON.stringify(payload).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+    // ---- Daily
+    let dailyHtml = '<h1 class="dayhead">Daily</h1>', hlItems = [];
+    for (let i = 0; i < N; i++) {
+      const d = dd(i), day = dt(i);
+      let h = '<article class="day" id="day-' + i + '" data-dow="' + WD[day.getDay()].slice(0, 3) + '" data-short="' + esc(short(day)) + '">';
+      h += '<div class="eyebrow">' + esc(WD[day.getDay()] + ', ' + full(day)) + '</div>';
+      if (d.title) h += '<h1>' + esc(d.title) + '</h1>';
+      if (d.subtitle) h += '<div class="muted" style="font-size:1.05rem">' + esc(d.subtitle) + '</div>';
+      if (d.journal && d.journal.trim()) h += '<div class="sec">Journal</div><div class="journal">' + esc(d.journal) + '</div>';
+      let fh = '', any = false;
+      MEALS.forEach(m => { const a = (d.food && d.food[m[0]]) || []; if (a.length) { any = true; fh += '<div class="sub">' + m[1] + '</div>' + a.map((x, k) => card('food', x, '', 'f' + i + m[0] + k)).join(''); a.forEach((x, k) => { if (firstId['f' + i + m[0] + k]) hlItems.push({ k: m[1] === 'Snacks' ? 'Snack' : m[1], n: x.name, i, id: firstId['f' + i + m[0] + k] }); }); } });
+      if (any) h += '<div class="sec">Food</div>' + fh;
+      const acts = (d.activities || []).concat(d.places || []);
+      if (acts.length) { h += '<div class="sec">Activities / Places</div>' + acts.map((x, k) => card('activity', x, '', 'a' + i + '_' + k)).join(''); acts.forEach((x, k) => { if (firstId['a' + i + '_' + k]) hlItems.push({ k: 'Activity / Place', n: x.name, i, id: firstId['a' + i + '_' + k] }); }); }
+      const stays = lodging.filter(l => l.checkInIdx <= i && i <= l.checkOutIdx);
+      if (stays.length) h += '<div class="sec">Accommodations</div>' + stays.map(l => {
+        const tag = i === l.checkInIdx ? 'Check-in' : (i === l.checkOutIdx ? 'Check-out' : 'Staying');
+        const li = lodging.indexOf(l), badge = '<div class="badge">' + tag + ' &middot; ' + esc(short(dt(l.checkInIdx))) + ' &rarr; ' + esc(short(dt(l.checkOutIdx))) + '</div>';
+        if (i === l.checkInIdx) return card('lodging', l, badge, 's' + li);
+        const keep = l.images; l.images = []; const c = card('lodging', l, badge); l.images = keep; return c;
+      }).join('');
+      if ((d.photos || []).length) h += '<div class="sec">Photos</div>' + thumbs(d.photos, d.title || short(day));
+      dailyHtml += h + '</article>';
+    }
+    lodging.forEach((l, li) => { if (firstId['s' + li]) hlItems.push({ k: 'Stay', n: l.name, i: l.checkInIdx || 0, id: firstId['s' + li] }); });
+    // ---- Summary
+    let meals = 0, acts = 0, photos = 0, hl = 0;
+    for (let i = 0; i < N; i++) { const d = dd(i); MEALS.forEach(m => { const a = (d.food && d.food[m[0]]) || []; meals += a.length; a.forEach(x => photos += (x.images || []).length); }); (d.activities || []).concat(d.places || []).forEach(a => { acts++; photos += (a.images || []).length; }); photos += (d.photos || []).length; }
+    lodging.forEach(l => photos += (l.images || []).length);
+    Object.keys(bw).forEach(q => Object.keys(bw[q] || {}).forEach(t => { if (bw[q][t] && String(bw[q][t]).trim()) hl++; }));
+    const st = [[N, 'Days'], [trav.length, 'Travelers'], [meals, 'Meals'], [acts, 'Activities / Places'], [lodging.length, 'Stays'], [photos, 'Photos'], [hl, 'Highs & Lows']];
+    let sum = '<h1>' + esc(meta.title || trips[tripId].name) + '</h1><div class="muted">' + esc(full(dt(0))) + ' &ndash; ' + esc(full(dt(N - 1))) + ' &middot; ' + N + ' days</div>';
+    if (trav.length) sum += '<div class="chips">' + trav.map(t => '<span class="chip">' + esc(t) + '</span>').join('') + '</div>';
+    if (meta.details) sum += '<div class="journal">' + esc(meta.details) + '</div>';
+    sum += '<div class="sec">Trip Stats</div><div class="stats">' + st.map(x => '<div class="stat"><b>' + x[0] + '</b><span>' + esc(x[1]) + '</span></div>').join('') + '</div>';
+    const pick = hlItems.slice(0, 6);
+    if (pick.length) sum += '<div class="sec">Highlights</div><div class="hl">' + pick.map(p => '<div class="hlc" data-im="' + p.id + '"><div class="k">' + esc(p.k) + '</div><div class="n">' + esc(p.n) + '</div><div class="d">' + esc(short(dt(p.i))) + '</div></div>').join('') + '</div>';
+    // ---- H&L
+    let hlv = '<h1>Highs &amp; Lows</h1>';
+    if (!trav.length || !bwq.length) hlv += '<p class="empty">No highs &amp; lows recorded.</p>';
+    else {
+      hlv += '<div class="tw"><table><thead><tr><th></th>' + trav.map(t => '<th>' + esc(t) + '</th>').join('') + '</tr></thead><tbody>';
+      bwq.forEach((q, qi) => { hlv += '<tr><td>' + esc(q) + '</td>' + trav.map((t, ti) => '<td>' + esc((bw[qi] && bw[qi][ti]) || '') + '</td>').join('') + '</tr>'; });
+      hlv += '</tbody></table></div>';
+    }
+    const bodyHtml =
+      '<header class="top"><div class="brand">my<span>Trips</span></div><div class="pill">View only</div></header>' +
+      '<nav class="tabs" id="tabs"><a data-t="summary" href="#sec-summary">Summary</a><a data-t="daily" href="#sec-daily">Daily</a><a data-t="photos" href="#sec-photos">Photos</a><a data-t="hl" href="#sec-hl">H&amp;L</a></nav>' +
+      '<main id="main"><section class="view" id="sec-summary">' + sum + '</section>' +
+      '<section class="view" id="sec-daily">' + dailyHtml + '</section>' +
+      '<section class="view" id="sec-photos"><h1>Photos</h1><p class="nojs">Photos appear within each day.</p></section>' +
+      '<section class="view" id="sec-hl">' + hlv + '</section></main>';
     const title = (meta.title || trips[tripId].name || 'Trip').replace(/[<>&"]/g, '');
     return document.getElementById('shareTemplate').textContent
       .split('%%TITLE%%').join(title)
       .split('%%SCRIPT_END%%').join('</' + 'script>')
-      .split('%%DATA%%').join(data);
+      .split('%%BODY%%').join(bodyHtml.replace(/\u2028/g, '&#8232;').replace(/\u2029/g, '&#8233;'));
   }
   function _shareFilename(tripId) {
     const base = (allTripMeta[tripId]?.title || trips[tripId].name || 'trip').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '_') || 'trip';
@@ -7868,8 +7953,7 @@
     </div>
   </div>
   <input type="file" id="quickAddPhotos" accept="image/*" multiple hidden>
-  <script type="text/template" id="shareTemplate">
-<!doctype html>
+  <script type="text/template" id="shareTemplate"><!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -7887,10 +7971,9 @@ header.top .brand{font-family:'Playfair Display',Georgia,serif;font-weight:700;f
 header.top .brand span{color:var(--accent)}
 .pill{flex:0 0 auto;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:3px 10px;background:var(--card)}
 nav.tabs{position:sticky;top:0;z-index:20;display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
-nav.tabs button{flex:1;appearance:none;border:0;background:none;font:inherit;font-weight:600;font-size:.88rem;color:var(--muted);padding:12px 4px;cursor:pointer;border-bottom:3px solid transparent}
-nav.tabs button.on{color:var(--text);border-bottom-color:var(--accent)}
+nav.tabs a{flex:1;text-align:center;text-decoration:none;font-weight:600;font-size:.88rem;color:var(--muted);padding:12px 4px;border-bottom:3px solid transparent}
+nav.tabs a.on{color:var(--text);border-bottom-color:var(--accent)}
 main{max-width:860px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-left,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
-.view{display:none}.view.on{display:block}
 h1{font-family:'Playfair Display',Georgia,serif;font-size:2rem;line-height:1.15;margin:4px 0 6px}
 .muted{color:var(--muted)}
 .sec{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px}
@@ -7948,145 +8031,73 @@ td:first-child{min-width:130px}
 #lb button{position:absolute;appearance:none;border:0;background:rgba(255,255,255,.14);color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.4rem;cursor:pointer}
 #lb .x{top:calc(12px + env(safe-area-inset-top,0px));right:12px}#lb .p{left:10px;top:50%}#lb .n{right:10px;top:50%}
 @media(max-width:560px){h1{font-size:1.6rem}.thumbs img{width:calc(33.3% - 6px);height:auto;aspect-ratio:1}}
+
+.view{margin-bottom:34px}
+.day{margin-bottom:34px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.nojs{color:var(--muted);font-style:italic}
+.js .view{display:none;margin-bottom:0}.js .view.on{display:block}
+.js .day{display:none;border:0;padding-bottom:0;margin-bottom:0}.js .day.on{display:block}
+.js .nojs{display:none}
+.hlc .ph{display:none}
+.thumbs img,.hlc img,.grid img{cursor:pointer}
 </style>
 </head>
 <body>
-<header class="top"><div class="brand">my<span>Trips</span></div><div class="pill">View only</div></header>
-<nav class="tabs" id="tabs"></nav>
-<main id="main"></main>
+%%BODY%%
 <div id="lb"><button class="x" aria-label="Close">&#10005;</button><button class="p" aria-label="Previous">&#8249;</button><img alt=""><button class="n" aria-label="Next">&#8250;</button><div class="cap"></div></div>
-<script type="application/json" id="trip-data">%%DATA%%%%SCRIPT_END%%
 <script>
 (function(){
-var D=JSON.parse(document.getElementById('trip-data').textContent);
-var trip=D.trip,meta=D.meta||{},days=D.days||{},lodging=D.lodging||[],trav=(meta.travelers||[]).filter(Boolean);
-var N=trip.totalDays,MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-var WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-var parts=trip.start.split('-'),START=new Date(+parts[0],+parts[1]-1,+parts[2]);
-function dt(i){var d=new Date(START);d.setDate(d.getDate()+i);return d}
-function full(d){return MN[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear()}
-function short(d){return MN[d.getMonth()].slice(0,3)+' '+d.getDate()}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function ftime(t){var m=/^(\d{1,2}):(\d{2})/.exec(t||'');if(!m)return '';var h=+m[1],ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+m[2]+' '+ap}
-function dur(a){var h=parseInt(a.durationH||0),m=parseInt(a.durationM||0),p=[];if(h)p.push(h+'h');if(m)p.push(m+'m');return p.length?p.join(' '):(a.duration||'')}
-function who(people){if(!people||!people.length)return '';if(trav.length&&people.length>=trav.length&&trav.every(function(t){return people.indexOf(t)>-1}))return 'All';return people.join(', ')}
-var MEALS=[['breakfast','Breakfast'],['lunch','Lunch'],['dinner','Dinner'],['snacks','Snacks']];
-var imgs=[];function reg(src,cap){imgs.push({src:src,cap:cap||''});return imgs.length-1}
-function thumbs(list,cap){if(!list||!list.length)return '';return '<div class="thumbs">'+list.map(function(s){return '<img loading="lazy" data-i="'+reg(s,cap)+'" src="'+s+'" alt="">'}).join('')+'</div>'}
-function card(kind,it,extra){
-  var h='<div class="card">';
-  if(it.time)h+='<div class="t">'+esc(ftime(it.time))+'</div>';
-  h+='<h3>'+esc(it.name)+'</h3>';
-  if(it.location)h+='<div class="loc">'+esc(it.location)+'</div>';
-  if(extra)h+=extra;
-  if(kind==='food'){
-    if(it.notes)h+='<p class="notes">'+esc(it.notes)+'</p>';
-    if(Array.isArray(it.lines)&&it.lines.length){it.lines.forEach(function(l){var w=who(l.people);h+=w?'<p class="line"><span class="who">'+esc(w)+'</span><span>'+esc(l.text)+'</span></p>':'<p>'+esc(l.text)+'</p>'})}
-    else(it.details||[]).forEach(function(d){h+='<p>'+esc(d)+'</p>'});
-  }else if(kind==='activity'){
-    String(it.description||'').split('\n').filter(function(l){return l.trim()}).forEach(function(l){h+='<p>'+esc(l)+'</p>'});
-    if(it.distance)h+='<p><b>Distance:</b> '+esc(it.distance)+'</p>';
-    var d=dur(it);if(d)h+='<p><b>Duration:</b> '+esc(d)+'</p>';
-  }else{(it.details||[]).forEach(function(d){h+='<p>'+esc(d)+'</p>'})}
-  h+=thumbs(it.images,it.name);
-  return h+'</div>';
+var root=document.documentElement;root.className+=' js';
+var tabsEl=document.getElementById('tabs'),tabLinks=[].slice.call(tabsEl.querySelectorAll('a'));
+var views={},days=[].slice.call(document.querySelectorAll('.day'));
+['summary','daily','photos','hl'].forEach(function(k){views[k]=document.getElementById('sec-'+k)});
+var N=days.length,cur=0,tab='summary';
+/* photo highlights: copy the picture from the day entry it points to (each photo is stored once in the file) */
+[].forEach.call(document.querySelectorAll('.hlc[data-im]'),function(c){var src=document.getElementById(c.getAttribute('data-im'));if(!src)return;var im=document.createElement('img');im.src=src.src;im.alt=src.alt;im.setAttribute('data-lb','');c.insertBefore(im,c.firstChild)});
+/* photos tab: built from every picture in the daily entries */
+(function(){var imgs=[].slice.call(views.daily.querySelectorAll('img[data-lb]'));var s=views.photos;[].forEach.call(s.querySelectorAll('.nojs'),function(n){n.parentNode.removeChild(n)});
+if(!imgs.length){s.insertAdjacentHTML('beforeend','<p class="empty">No photos in this trip.</p>');return}
+var g=document.createElement('div');g.className='grid';imgs.forEach(function(src){var f=document.createElement('figure'),im=document.createElement('img'),c=document.createElement('figcaption');im.src=src.src;im.alt=src.alt;im.setAttribute('data-lb','');im.setAttribute('loading','lazy');c.textContent=src.alt;f.appendChild(im);f.appendChild(c);g.appendChild(f)});s.appendChild(g)})();
+/* day bar + prev/next */
+var bar=document.createElement('div');bar.className='daybar';bar.id='daybar';
+days.forEach(function(d,i){var b=document.createElement('button');b.setAttribute('data-d',i);b.innerHTML='<small>'+d.getAttribute('data-dow')+'</small>'+d.getAttribute('data-short');bar.appendChild(b)});
+views.daily.insertBefore(bar,views.daily.firstChild);
+var nav=document.createElement('div');nav.className='nav2';nav.innerHTML='<button data-step="-1">&larr; Prev day</button><button data-step="1">Next day &rarr;</button>';views.daily.appendChild(nav);
+function paint(){
+  for(var k in views){views[k].className='view'+(k===tab?' on':'')}
+  days.forEach(function(d,i){d.className='day'+(i===cur?' on':'')});
+  tabLinks.forEach(function(a){a.className=a.getAttribute('data-t')===tab?'on':''});
+  [].forEach.call(bar.children,function(b,i){b.className=i===cur?'on':''});
+  nav.children[0].disabled=cur===0;nav.children[1].disabled=cur===N-1;
+  var on=bar.children[cur];if(tab==='daily'&&on)bar.scrollLeft=on.offsetLeft-bar.clientWidth/2+on.clientWidth/2;
 }
-function dayData(i){return days[i]||{food:{},activities:[],photos:[]}}
-/* ---------- Summary ---------- */
-function stats(){
-  var meals=0,acts=0,photos=0,hl=0;
-  for(var i=0;i<N;i++){var d=dayData(i);MEALS.forEach(function(m){var a=(d.food&&d.food[m[0]])||[];meals+=a.length;a.forEach(function(x){photos+=(x.images||[]).length})});(d.activities||[]).forEach(function(a){acts++;photos+=(a.images||[]).length});photos+=(d.photos||[]).length}
-  lodging.forEach(function(l){photos+=(l.images||[]).length});
-  var bw=D.bw||{};Object.keys(bw).forEach(function(q){Object.keys(bw[q]||{}).forEach(function(t){if(bw[q][t]&&String(bw[q][t]).trim())hl++})});
-  return [[N,'Days'],[trav.length,'Travelers'],[meals,'Meals'],[acts,'Activities / Places'],[lodging.length,'Stays'],[photos,'Photos'],[hl,'Highs & Lows']];
-}
-function summary(){
-  var h='<h1>'+esc(meta.title||trip.name)+'</h1><div class="muted">'+esc(full(dt(0)))+' &ndash; '+esc(full(dt(N-1)))+' &middot; '+N+' days</div>';
-  if(trav.length)h+='<div class="chips">'+trav.map(function(t){return '<span class="chip">'+esc(t)+'</span>'}).join('')+'</div>';
-  if(meta.details)h+='<div class="journal">'+esc(meta.details)+'</div>';
-  h+='<div class="sec">Trip Stats</div><div class="stats">'+stats().map(function(s){return '<div class="stat"><b>'+s[0]+'</b><span>'+s[1]+'</span></div>'}).join('')+'</div>';
-  var items=[],kinds={breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snacks:'Snack',activity:'Activity / Place',lodging:'Stay'};
-  for(var i=0;i<N;i++){var d=dayData(i);MEALS.forEach(function(m){((d.food&&d.food[m[0]])||[]).forEach(function(x){items.push({k:m[0],n:x.name,i:i,im:(x.images||[])[0]})})});(d.activities||[]).forEach(function(x){items.push({k:'activity',n:x.name,i:i,im:(x.images||[])[0]})})}
-  lodging.forEach(function(x){items.push({k:'lodging',n:x.name,i:x.checkInIdx||0,im:(x.images||[])[0]})});
-  var pick=items.filter(function(x){return x.im}).slice(0,6);
-  if(pick.length){h+='<div class="sec">Highlights</div><div class="hl">'+pick.map(function(p){return '<div class="hlc"><img data-i="'+reg(p.im,p.n)+'" src="'+p.im+'" alt=""><div class="k">'+kinds[p.k]+'</div><div class="n">'+esc(p.n)+'</div><div class="d">'+esc(short(dt(p.i)))+'</div></div>'}).join('')+'</div>'}
-  return h;
-}
-/* ---------- Daily ---------- */
-var cur=0;
-function dayView(){
-  var h='<div class="daybar" id="daybar">';
-  for(var i=0;i<N;i++){var d=dt(i);h+='<button data-d="'+i+'" class="'+(i===cur?'on':'')+'"><small>'+WD[d.getDay()].slice(0,3)+'</small>'+esc(short(d))+'</button>'}
-  h+='</div>';
-  var d=dayData(cur),dd=dt(cur);
-  h+='<div class="eyebrow">'+esc(WD[dd.getDay()]+', '+full(dd))+'</div>';
-  if(d.title)h+='<h1>'+esc(d.title)+'</h1>';
-  if(d.subtitle)h+='<div class="muted" style="font-size:1.05rem">'+esc(d.subtitle)+'</div>';
-  if(d.journal&&d.journal.trim())h+='<div class="sec">Journal</div><div class="journal">'+esc(d.journal)+'</div>';
-  var any=false,fh='';
-  MEALS.forEach(function(m){var a=(d.food&&d.food[m[0]])||[];if(a.length){any=true;fh+='<div class="sub">'+m[1]+'</div>'+a.map(function(x){return card('food',x)}).join('')}});
-  if(any)h+='<div class="sec">Food</div>'+fh;
-  var acts=(d.activities||[]).concat(d.places||[]);
-  if(acts.length)h+='<div class="sec">Activities / Places</div>'+acts.map(function(x){return card('activity',x)}).join('');
-  var stays=lodging.filter(function(l){return l.checkInIdx<=cur&&cur<=l.checkOutIdx});
-  if(stays.length)h+='<div class="sec">Accommodations</div>'+stays.map(function(l){var tag=cur===l.checkInIdx?'Check-in':(cur===l.checkOutIdx?'Check-out':'Staying');return card('lodging',l,'<div class="badge">'+tag+' &middot; '+esc(short(dt(l.checkInIdx)))+' &rarr; '+esc(short(dt(l.checkOutIdx)))+'</div>')}).join('');
-  if((d.photos||[]).length)h+='<div class="sec">Photos</div>'+thumbs(d.photos,d.title||short(dd));
-  h+='<div class="nav2"><button data-step="-1"'+(cur===0?' disabled':'')+'>&larr; Prev day</button><button data-step="1"'+(cur===N-1?' disabled':'')+'>Next day &rarr;</button></div>';
-  return h;
-}
-/* ---------- Photos ---------- */
-function photosView(){
-  var all=[];
-  for(var i=0;i<N;i++){var d=dayData(i),lbl=short(dt(i));(d.photos||[]).forEach(function(s){all.push([s,lbl])});MEALS.forEach(function(m){((d.food&&d.food[m[0]])||[]).forEach(function(x){(x.images||[]).forEach(function(s){all.push([s,x.name])})})});(d.activities||[]).concat(d.places||[]).forEach(function(x){(x.images||[]).forEach(function(s){all.push([s,x.name])})})}
-  lodging.forEach(function(x){(x.images||[]).forEach(function(s){all.push([s,x.name])})});
-  if(!all.length)return '<h1>Photos</h1><p class="empty">No photos in this trip.</p>';
-  return '<h1>Photos</h1><div class="grid">'+all.map(function(p){return '<figure data-i="'+reg(p[0],p[1])+'"><img loading="lazy" src="'+p[0]+'" alt=""><figcaption>'+esc(p[1])+'</figcaption></figure>'}).join('')+'</div>';
-}
-/* ---------- Highs & Lows ---------- */
-function hlView(){
-  var qs=D.bwq||[],bw=D.bw||{};
-  if(!trav.length||!qs.length)return '<h1>Highs &amp; Lows</h1><p class="empty">No highs &amp; lows recorded.</p>';
-  var h='<h1>Highs &amp; Lows</h1><div class="tw"><table><thead><tr><th></th>'+trav.map(function(t){return '<th>'+esc(t)+'</th>'}).join('')+'</tr></thead><tbody>';
-  qs.forEach(function(q,qi){h+='<tr><td>'+esc(q)+'</td>'+trav.map(function(t,ti){var a=bw[qi]&&bw[qi][ti];return '<td>'+esc(a||'')+'</td>'}).join('')+'</tr>'});
-  return h+'</tbody></table></div>';
-}
-/* ---------- Shell ---------- */
-var TABS=[['summary','Summary'],['daily','Daily'],['photos','Photos'],['hl','H&L']],tab='summary',main=document.getElementById('main'),tabsEl=document.getElementById('tabs');
-tabsEl.innerHTML=TABS.map(function(t){return '<button data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
-function render(){
-  imgs=[];
-  var v=tab==='summary'?summary():tab==='daily'?dayView():tab==='photos'?photosView():hlView();
-  main.innerHTML=v;
-  Array.prototype.forEach.call(tabsEl.children,function(b){b.className=b.getAttribute('data-t')===tab?'on':''});
-  var on=main.querySelector('.daybar .on');if(on&&on.scrollIntoView){var bar=document.getElementById('daybar');bar.scrollLeft=on.offsetLeft-bar.clientWidth/2+on.clientWidth/2}
-}
-function go(t,d){tab=t;if(d!=null)cur=Math.max(0,Math.min(N-1,d));try{history.replaceState(null,'','#'+t+(t==='daily'?'-'+cur:''))}catch(e){}render();window.scrollTo(0,0)}
-tabsEl.addEventListener('click',function(e){var b=e.target.closest('button');if(b)go(b.getAttribute('data-t'))});
-main.addEventListener('click',function(e){
-  var s=e.target.closest('[data-step]');if(s){go('daily',cur+ +s.getAttribute('data-step'));return}
-  var d=e.target.closest('[data-d]');if(d){go('daily',+d.getAttribute('data-d'));return}
-  var im=e.target.closest('[data-i]');if(im)lb(+im.getAttribute('data-i'));
+function go(t,d){tab=t;if(d!=null)cur=Math.max(0,Math.min(N-1,d));try{history.replaceState(null,'','#'+t+(t==='daily'?'-'+cur:''))}catch(e){}paint();window.scrollTo(0,0)}
+tabsEl.addEventListener('click',function(e){var a=e.target;while(a&&a.tagName!=='A')a=a.parentNode;if(!a)return;e.preventDefault();go(a.getAttribute('data-t'))});
+document.getElementById('main').addEventListener('click',function(e){
+  var t=e.target;
+  if(t.hasAttribute('data-lb')){lb(t);return}
+  var b=t.closest?t.closest('[data-step],[data-d]'):null;if(!b)return;
+  if(b.hasAttribute('data-step'))go('daily',cur+ +b.getAttribute('data-step'));else go('daily',+b.getAttribute('data-d'));
 });
-var tx=null;
-main.addEventListener('touchstart',function(e){tx=e.touches.length===1&&tab==='daily'&&!e.target.closest('.daybar')?e.touches[0].clientX:null},{passive:true});
+var tx=null,main=document.getElementById('main');
+main.addEventListener('touchstart',function(e){tx=(e.touches.length===1&&tab==='daily'&&!(e.target.closest&&e.target.closest('.daybar')))?e.touches[0].clientX:null},{passive:true});
 main.addEventListener('touchend',function(e){if(tx==null)return;var dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>70){var n=cur+(dx<0?1:-1);if(n>=0&&n<N)go('daily',n)}},{passive:true});
-/* ---------- Lightbox ---------- */
-var lbEl=document.getElementById('lb'),li=0;
-function lb(i){li=i;show();lbEl.className='on'}
-function show(){var m=imgs[li];if(!m)return;lbEl.querySelector('img').src=m.src;lbEl.querySelector('.cap').textContent=m.cap+'  ('+(li+1)+' / '+imgs.length+')'}
-lbEl.addEventListener('click',function(e){var c=e.target.className;if(c==='x'||e.target===lbEl)lbEl.className='';else if(c==='p'){li=(li-1+imgs.length)%imgs.length;show()}else if(c==='n'){li=(li+1)%imgs.length;show()}});
-document.addEventListener('keydown',function(e){if(lbEl.className!=='on')return;if(e.key==='Escape')lbEl.className='';if(e.key==='ArrowLeft'){li=(li-1+imgs.length)%imgs.length;show()}if(e.key==='ArrowRight'){li=(li+1)%imgs.length;show()}});
-/* ---------- Start ---------- */
+/* lightbox */
+var lbEl=document.getElementById('lb'),group=[],li=0;
+function lb(img){var box=img.closest?(img.closest('.day')||img.closest('.view')):null;group=[].slice.call((box||document).querySelectorAll('img[data-lb]'));li=Math.max(0,group.indexOf(img));show();lbEl.className='on'}
+function show(){var m=group[li];if(!m)return;lbEl.querySelector('img').src=m.src;lbEl.querySelector('.cap').textContent=(m.alt||'')+'  ('+(li+1)+' / '+group.length+')'}
+function step(d){li=(li+d+group.length)%group.length;show()}
+lbEl.addEventListener('click',function(e){var c=e.target.className;if(c==='x'||e.target===lbEl)lbEl.className='';else if(c==='p')step(-1);else if(c==='n')step(1)});
+document.addEventListener('keydown',function(e){if(lbEl.className!=='on')return;if(e.key==='Escape')lbEl.className='';if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1)});
+/* start */
 var h=(location.hash||'').slice(1),m=/^daily-(\d+)$/.exec(h);
-if(m){tab='daily';cur=Math.min(N-1,+m[1])}else if(/^(summary|daily|photos|hl)$/.test(h))tab=h;
-document.title=(meta.title||trip.name||'Trip')+' – myTrips';
-render();
+if(m){tab='daily';cur=Math.min(N-1,+m[1])}else{var mm=/^(?:sec-)?(summary|daily|photos|hl)$/.exec(h);if(mm)tab=mm[1]}
+paint();
 })();
 %%SCRIPT_END%%
 </body>
 </html>
-
-  </script>
+</script>
   <!-- dotMenu portal -->
   <div id="dotMenu" style="display:none; position:fixed; background:var(--sidebar-bg); border:1px solid rgba(200,169,110,0.3); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.35); z-index:10000; width:max-content; padding:4px 0;">
     <button onclick="openModal();closeDotMenu();" class="dot-menu-item">New Trip</button>
