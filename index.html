@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v63 -->
+<!-- myTrips v64 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v63</title>
+<title>myTrips v64</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2425,6 +2425,30 @@
     .bw-table-wrap { padding: 12px 14px 0; }
   }
 
+  /* ══ v64: Lessons Learned ══ */
+  .lessons-wrap { max-width: 760px; padding: 28px 40px 0; }
+  .lessons-add { display: flex; gap: 8px; align-items: stretch; margin-bottom: 18px; }
+  .lessons-add input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card, #fff);
+    font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--text); margin: 0; }
+  .lessons-add button { flex: 0 0 auto; padding: 0 18px; border: none; border-radius: 8px; background: var(--accent); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .lessons-add button:hover { background: var(--accent-dark); }
+  .lessons-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .lessons-list li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 8px 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card, #fff); }
+  .lessons-list li::before { content: ''; flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-top: 0.62rem; }
+  .lessons-list textarea { flex: 1; min-width: 0; border: none; background: transparent; resize: none; overflow: hidden; padding: 4px 2px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.93rem; line-height: 1.45; color: var(--text); margin: 0; outline: none; border-radius: 6px; }
+  .lessons-list textarea:focus { background: var(--bg); }
+  .lessons-del { flex: 0 0 auto; width: 30px; height: 30px; border: none; background: none; color: var(--text-muted); font-size: 0.95rem; border-radius: 6px; cursor: pointer; padding: 0; }
+  .lessons-del:hover { background: var(--bg); color: #c44; }
+  .lessons-list li.lessons-none::before { display: none; }
+  .lessons-empty { color: var(--text-muted); font-style: italic; font-size: 0.9rem; padding: 6px 2px; }
+  @media (max-width: 760px) {
+    .lessons-wrap { padding: 14px 14px 0; }
+    .lessons-add input, .lessons-list textarea { font-size: 16px; }
+    .mobile-tabs button { font-size: 0.72rem; padding-left: 0; padding-right: 0; }
+  }
+
   /* ══ v61: Missing section + share button ══ */
   .summary-danger-row { gap: 10px; flex-wrap: wrap; }
   .missing-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px 14px 12px; }
@@ -2448,7 +2472,7 @@
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v63</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v64</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -2474,6 +2498,7 @@
         <button onclick="showEntriesView(this, 'portugal', 'Portugal 2022')">Timeline View</button>
         <button onclick="showPhotosView(this, 'portugal', 'Portugal 2022')">Photos</button>
         <button onclick="showBestWorstView(this, 'portugal', 'Portugal 2022')">Highs &amp; Lows</button>
+        <button onclick="showLessonsView(this, 'portugal', 'Portugal 2022')">Lessons Learned</button>
       </div>
     </div>
 
@@ -2485,6 +2510,7 @@
         <button onclick="showEntriesView(this, 'nz', 'New Zealand 2025')">Timeline View</button>
         <button onclick="showPhotosView(this, 'nz', 'New Zealand 2025')">Photos</button>
         <button onclick="showBestWorstView(this, 'nz', 'New Zealand 2025')">Highs &amp; Lows</button>
+        <button onclick="showLessonsView(this, 'nz', 'New Zealand 2025')">Lessons Learned</button>
       </div>
     </div>
     <div class="sort-row" style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.07);">
@@ -2742,6 +2768,7 @@
       <button data-tab="timeline">Timeline</button>
       <button data-tab="photos">Photos</button>
       <button data-tab="hl">H&amp;L</button>
+      <button data-tab="lessons">Lessons</button>
     </nav>
     <!-- Date Navigation -->
     <nav class="date-nav">
@@ -4591,13 +4618,17 @@
       dstyle += 'html:not(.js) body:has(#day-' + i + ':target) .daybar a[href="#day-' + i + '"]{color:var(--text);border-bottom-color:var(--accent);background:var(--card)}';
     }
     sdaybar += '</nav>' + dstyle + '</style>';
+    let lessonsHtml = '<h1>Lessons Learned</h1>';
+    const lessons = (meta.lessons || []).filter(x => String(x).trim());
+    lessonsHtml += lessons.length ? '<ul class="lessons">' + lessons.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '<p class="empty">No lessons recorded.</p>';
     const bodyHtml =
       '<div class="stick"><header class="top"><div class="brand">my<span>Trips</span></div><div class="pill">View only</div></header>' +
-      '<nav class="tabs" id="tabs"><a data-t="summary" href="#sec-summary">Summary</a><a data-t="daily" href="#sec-daily">Daily</a><a data-t="photos" href="#sec-photos">Photos</a><a data-t="hl" href="#sec-hl">H&amp;L</a></nav>' + sdaybar + '</div>' +
+      '<nav class="tabs" id="tabs"><a data-t="summary" href="#sec-summary">Summary</a><a data-t="daily" href="#sec-daily">Daily</a><a data-t="photos" href="#sec-photos">Photos</a><a data-t="hl" href="#sec-hl">H&amp;L</a><a data-t="lessons" href="#sec-lessons">Lessons</a></nav>' + sdaybar + '</div>' +
       '<main id="main"><section class="view" id="sec-summary">' + sum + '</section>' +
       '<section class="view" id="sec-daily">' + dailyHtml + '</section>' +
       '<section class="view" id="sec-photos"><h1>Photos</h1><p class="nojs">Photos appear within each day.</p></section>' +
-      '<section class="view" id="sec-hl">' + hlv + '</section></main>';
+      '<section class="view" id="sec-hl">' + hlv + '</section>' +
+      '<section class="view" id="sec-lessons">' + lessonsHtml + '</section></main>';
     const title = (meta.title || trips[tripId].name || 'Trip').replace(/[<>&"]/g, '');
     return document.getElementById('shareTemplate').textContent
       .split('%%TITLE%%').join(title)
@@ -4615,7 +4646,7 @@
         <button class="btn-create" data-act="dl" disabled>Download file</button>
         <button class="btn-cancel" data-act="close">Close</button>
       </div>
-      <p data-status style="font-size:0.8rem;color:var(--text-muted);margin:12px 0 0;line-height:1.5;">One file with the Summary, every day, Photos and Highs &amp; Lows. Anyone can open it in a browser, and it can’t be edited. Send it by email or text, or put it on a website.</p>`);
+      <p data-status style="font-size:0.8rem;color:var(--text-muted);margin:12px 0 0;line-height:1.5;">One file with the Summary, every day, Photos, Highs &amp; Lows and Lessons Learned. Anyone can open it in a browser, and it can’t be edited. Send it by email or text, or put it on a website.</p>`);
     let html;
     try { html = await _buildShareHtml(tripId); }
     catch (e) { m.q('[data-info]').textContent = 'Could not build the file: ' + (e && e.message || e); return; }
@@ -5518,6 +5549,79 @@
     });
   }
 
+
+  // ══ v64: Lessons Learned — a simple bullet list per trip (stored on the trip's meta) ══
+  function getLessons(tripId) {
+    const m = getTripMeta(tripId);
+    if (!Array.isArray(m.lessons)) m.lessons = [];
+    return m.lessons;
+  }
+  function showLessonsView(btn, tripId, tripName) {
+    currentView = 'lessons';
+    activeTrip = tripId;
+    tripStart = trips[tripId].start;
+    totalDays = trips[tripId].totalDays;
+    setActive(btn);
+    document.getElementById('dayContent').style.display = 'none';
+    document.querySelector('.date-nav').style.display = 'none';
+    document.getElementById('categoryView').classList.remove('active');
+    document.getElementById('summaryView').classList.remove('active');
+    document.getElementById('accountView').classList.remove('active');
+    document.getElementById('photosView').classList.remove('active');
+    document.getElementById('bestwrostView').classList.add('active');
+    renderLessonsView(tripId, tripName || trips[tripId].name);
+  }
+  function renderLessonsView(tripId, tripName) {
+    const container = document.getElementById('bestwrostView');
+    container.innerHTML = '';
+    const hdr = document.createElement('div'); hdr.className = 'cat-header-sticky';
+    const row = document.createElement('div'); row.className = 'cat-header';
+    const t = document.createElement('div'); t.className = 'cat-title'; t.textContent = 'Lessons Learned';
+    const st = document.createElement('div'); st.className = 'cat-subtitle'; st.textContent = tripName;
+    row.appendChild(t); row.appendChild(st); hdr.appendChild(row); container.appendChild(hdr);
+    const body = document.createElement('div'); body.className = 'bw-scroll-body'; container.appendChild(body);
+    const wrap = document.createElement('div'); wrap.className = 'lessons-wrap'; body.appendChild(wrap);
+
+    const add = document.createElement('div'); add.className = 'lessons-add';
+    const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Add a lesson…'; inp.setAttribute('aria-label', 'New lesson');
+    const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.textContent = 'Add';
+    add.appendChild(inp); add.appendChild(addBtn); wrap.appendChild(add);
+    const list = document.createElement('ul'); list.className = 'lessons-list'; wrap.appendChild(list);
+
+    const grow = ta => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+    const save = () => { if (typeof scheduleSave === 'function') scheduleSave(); };
+    const build = () => {
+      const items = getLessons(tripId);
+      list.innerHTML = '';
+      if (!items.length) { const e = document.createElement('li'); e.style.cssText = 'border:none;background:none;padding:0;'; e.innerHTML = '<span class="lessons-empty">No lessons yet. Add the first one above.</span>'; e.className = 'lessons-none'; list.appendChild(e); return; }
+      items.forEach((txt, i) => {
+        const li = document.createElement('li');
+        const ta = document.createElement('textarea'); ta.rows = 1; ta.value = txt; ta.setAttribute('aria-label', 'Lesson ' + (i + 1));
+        ta.addEventListener('input', () => { items[i] = ta.value; grow(ta); save(); });
+        ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ta.blur(); } });
+        ta.addEventListener('blur', () => { if (!ta.value.trim()) remove(i); else { items[i] = ta.value.trim(); } });
+        const del = document.createElement('button'); del.type = 'button'; del.className = 'lessons-del'; del.setAttribute('aria-label', 'Delete lesson'); del.textContent = '✕';
+        del.onclick = () => remove(i);
+        li.appendChild(ta); li.appendChild(del); list.appendChild(li);
+      });
+      requestAnimationFrame(() => list.querySelectorAll('textarea').forEach(grow));
+    };
+    const remove = i => {
+      const items = getLessons(tripId);
+      if (i >= items.length) return;
+      const snap = _snapshotTrip(tripId);
+      items.splice(i, 1); build(); save();
+      _toast('Lesson deleted', { action: 'Undo', duration: 5000, onAction: () => { _restoreTrip(snap); _refreshCurrentView(); save(); } });
+    };
+    const addIt = () => {
+      const v = inp.value.trim(); if (!v) { inp.focus(); return; }
+      getLessons(tripId).push(v); inp.value = ''; build(); save(); inp.focus();
+    };
+    addBtn.onclick = addIt;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addIt(); } });
+    build();
+  }
+
   // ── Highs &amp; Lows View ──
   function showBestWorstView(btn, tripId, tripName) {
     currentView = 'bestworst';
@@ -6049,6 +6153,11 @@
     bwBtn.onclick = () => showBestWorstView(bwBtn, id, name);
     subnav.appendChild(bwBtn);
 
+    const lessonsBtn = document.createElement('button');
+    lessonsBtn.textContent = 'Lessons Learned';
+    lessonsBtn.onclick = () => showLessonsView(lessonsBtn, id, name);
+    subnav.appendChild(lessonsBtn);
+
     group.appendChild(tripBtn);
     group.appendChild(subnav);
     const labelRow = sidebar.querySelector('.trip-label-row');
@@ -6568,6 +6677,7 @@
     const id = activeTrip, sub = document.getElementById('subnav-' + id);
     if (currentView === 'summary') { const tb = document.querySelector(`#group-${id} .trip-btn`); if (tb) showTripSummary(tb, id); }
     else if (currentView === 'bestworst' && sub) sub.children[3].click();
+    else if (currentView === 'lessons' && sub) sub.children[4].click();
     else if (currentView === 'photos' && sub) sub.children[2].click();
     else { if (currentView === 'day') renderDateTabs(); _afterChange(); }
   }
@@ -7532,7 +7642,8 @@
       [['Daily Details', () => showTimelineView(subnav.children[0], id)],
        ['Timeline View', () => showEntriesView(subnav.children[1], id, trip.name)],
        ['Photos',        () => showPhotosView(subnav.children[2], id, trip.name)],
-       ['Highs & Lows',  () => showBestWorstView(subnav.children[3], id, trip.name)]
+       ['Highs & Lows',  () => showBestWorstView(subnav.children[3], id, trip.name)],
+       ['Lessons Learned', () => showLessonsView(subnav.children[4], id, trip.name)]
       ].forEach(([label, fn]) => {
         const b = document.createElement('button'); b.textContent = label; b.onclick = fn;
         subnav.appendChild(b);
@@ -7727,7 +7838,7 @@
 
 
   // Mobile section tabs
-  const _tabMap = { summary: 'summary', day: 'daily', entries: 'timeline', photos: 'photos', bestworst: 'hl' };
+  const _tabMap = { summary: 'summary', day: 'daily', entries: 'timeline', photos: 'photos', bestworst: 'hl', lessons: 'lessons' };
   function _updateMobileTabs() {
     const has = !!(activeTrip && trips[activeTrip]) && currentView !== 'account';
     document.body.classList.toggle('has-trip', has);
@@ -7743,11 +7854,11 @@
       if (tb) showTripSummary(tb, id);
       return;
     }
-    const idx = { daily: 0, timeline: 1, photos: 2, hl: 3 }[b.dataset.tab];
+    const idx = { daily: 0, timeline: 1, photos: 2, hl: 3, lessons: 4 }[b.dataset.tab];
     const sub = document.getElementById('subnav-' + id);
     if (sub && sub.children[idx]) sub.children[idx].click();
   });
-  ['showTripSummary','showTimelineView','showEntriesView','showPhotosView','showBestWorstView','showAccountView','showDayView']
+  ['showTripSummary','showTimelineView','showEntriesView','showPhotosView','showBestWorstView','showLessonsView','showAccountView','showDayView']
     .forEach(n => {
       const orig = window[n]; if (typeof orig !== 'function') return;
       window[n] = function(...a) { const r = orig.apply(this, a); _updateMobileTabs(); return r; };
@@ -8053,11 +8164,12 @@ html:not(.js) .day{display:none;border:0;padding:0;margin:0}
 html:not(.js) .day:target,html:not(.js) #sec-daily:not(:has(.day:target)) #day-0{display:block}
 html:not(.js) .stick .daybar{display:none}
 html:not(.js) body:has(#sec-daily:target) .stick .daybar,html:not(.js) body:has(.day:target) .stick .daybar{display:flex}
-html:not(.js) body:not(:has(:target)) nav.tabs a[data-t=summary],html:not(.js) body:has(#sec-summary:target) nav.tabs a[data-t=summary],html:not(.js) body:has(#sec-daily:target) nav.tabs a[data-t=daily],html:not(.js) body:has(.day:target) nav.tabs a[data-t=daily],html:not(.js) body:has(#sec-photos:target) nav.tabs a[data-t=photos],html:not(.js) body:has(#sec-hl:target) nav.tabs a[data-t=hl]{color:var(--text);border-bottom-color:var(--accent)}
+html:not(.js) body:not(:has(:target)) nav.tabs a[data-t=summary],html:not(.js) body:has(#sec-summary:target) nav.tabs a[data-t=summary],html:not(.js) body:has(#sec-daily:target) nav.tabs a[data-t=daily],html:not(.js) body:has(.day:target) nav.tabs a[data-t=daily],html:not(.js) body:has(#sec-photos:target) nav.tabs a[data-t=photos],html:not(.js) body:has(#sec-hl:target) nav.tabs a[data-t=hl],html:not(.js) body:has(#sec-lessons:target) nav.tabs a[data-t=lessons]{color:var(--text);border-bottom-color:var(--accent)}
 html:not(.js) body:has(#sec-daily:target) .daybar a[href="#day-0"]{color:var(--text);border-bottom-color:var(--accent);background:var(--card)}
 .js .nav2s,.js .sdaybar{display:none!important}
 .js .stick .daybar{display:none}.js .stick .daybar.show{display:flex}
 .nojs{color:var(--muted);font-style:italic}
+.lessons{margin:10px 0 0;padding-left:22px}.lessons li{margin:0 0 10px;padding-left:4px}.lessons li::marker{color:var(--accent)}
 .js .view{display:none;margin-bottom:0}.js .view.on{display:block}
 .js .day{display:none;border:0;padding-bottom:0;margin-bottom:0}.js .day.on{display:block}
 .js .nojs{display:none}
@@ -8073,7 +8185,7 @@ html:not(.js) body:has(#sec-daily:target) .daybar a[href="#day-0"]{color:var(--t
 var root=document.documentElement;root.className+=' js';
 var tabsEl=document.getElementById('tabs'),tabLinks=[].slice.call(tabsEl.querySelectorAll('a'));
 var views={},days=[].slice.call(document.querySelectorAll('.day'));
-['summary','daily','photos','hl'].forEach(function(k){views[k]=document.getElementById('sec-'+k)});
+['summary','daily','photos','hl','lessons'].forEach(function(k){views[k]=document.getElementById('sec-'+k)});
 var N=days.length,cur=0,tab='summary';
 /* photo highlights: copy the picture from the day entry it points to (each photo is stored once in the file) */
 [].forEach.call(document.querySelectorAll('.hlc[data-im]'),function(c){var src=document.getElementById(c.getAttribute('data-im'));if(!src)return;var im=document.createElement('img');im.src=src.src;im.alt=src.alt;im.setAttribute('data-lb','');c.insertBefore(im,c.firstChild)});
@@ -8114,9 +8226,9 @@ lbEl.addEventListener('click',function(e){var c=e.target.className;if(c==='x'||e
 document.addEventListener('keydown',function(e){if(lbEl.className!=='on')return;if(e.key==='Escape')lbEl.className='';if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1)});
 /* start */
 var h=(location.hash||'').slice(1),m=/^(?:daily|day)-(\d+)$/.exec(h);
-if(m){tab='daily';cur=Math.min(N-1,+m[1])}else{var mm=/^(?:sec-)?(summary|daily|photos|hl)$/.exec(h);if(mm)tab=mm[1]}
+if(m){tab='daily';cur=Math.min(N-1,+m[1])}else{var mm=/^(?:sec-)?(summary|daily|photos|hl|lessons)$/.exec(h);if(mm)tab=mm[1]}
 paint();
-window.addEventListener('hashchange',function(){var h=(location.hash||'').slice(1),m=/^(?:daily|day)-(\d+)$/.exec(h);if(m){tab='daily';cur=Math.min(N-1,+m[1]);paint()}else{var mm=/^(?:sec-)?(summary|daily|photos|hl)$/.exec(h);if(mm){tab=mm[1];paint()}}});
+window.addEventListener('hashchange',function(){var h=(location.hash||'').slice(1),m=/^(?:daily|day)-(\d+)$/.exec(h);if(m){tab='daily';cur=Math.min(N-1,+m[1]);paint()}else{var mm=/^(?:sec-)?(summary|daily|photos|hl|lessons)$/.exec(h);if(mm){tab=mm[1];paint()}}});
 })();
 %%SCRIPT_END%%
 </body>
