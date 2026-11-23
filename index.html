@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v58 -->
+<!-- myTrips v59 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v58</title>
+<title>myTrips v59</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2395,13 +2395,20 @@
   .card-info .entry-time { margin-bottom: 0; }
   .card-info .lodging-location { margin: 0 0 3px; line-height: 1.35; }
   .card-info p { line-height: 1.45; }
+
+  /* ══ v59: Location + Time share one row; meal notes ══ */
+  .loc-time-row { display: grid; grid-template-columns: minmax(0, 1fr) 128px; gap: 10px; align-items: end; }
+  .loc-time-row > div { min-width: 0; }
+  .loc-time-row .meal-input { height: 44px; min-height: 44px; box-sizing: border-box; }
+  .loc-time-row .time-input { width: 100%; }
+  .card-info .entry-notes { font-style: italic; margin: 2px 0 4px; }
 </style>
 </head>
 <body>
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v58</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v59</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -2522,12 +2529,17 @@
       <label class="field-label" id="mealLocationLabel">Restaurant / Name</label>
       <input type="text" id="mealLocation" placeholder="e.g. Cervejaria Ramiro" maxlength="80" class="meal-input" />
 
-      <label class="field-label">Location</label>
-      <input type="text" id="mealLocationDetail" placeholder="e.g. Intendente, Lisbon" maxlength="100" class="meal-input" />
-      <label class="field-label">Time <span class="field-opt">(optional)</span></label>
-      <input type="time" id="mealTime" class="meal-input time-input" />
+      <div class="loc-time-row">
+        <div><label class="field-label">Location</label>
+          <input type="text" id="mealLocationDetail" placeholder="e.g. Intendente" maxlength="100" class="meal-input" /></div>
+        <div><label class="field-label">Time</label>
+          <input type="time" id="mealTime" class="meal-input time-input" /></div>
+      </div>
 
-      <label class="field-label">Orders &amp; notes</label>
+      <label class="field-label">Notes</label>
+      <textarea id="mealNotes" placeholder="Overall notes about the meal..." class="meal-textarea" rows="2"></textarea>
+
+      <label class="field-label">Orders</label>
       <div class="order-rows" id="mealOrderRows"></div>
       <button type="button" class="order-add" id="mealOrderAdd">+ Add line</button>
 
@@ -2598,20 +2610,22 @@
   <div class="modal-overlay" id="activityModalOverlay">
     <div class="modal meal-modal">
       <div class="meal-modal-header">
-        <h2 id="activityModalTitle">Add Activity</h2>
+        <h2 id="activityModalTitle">Add Activity / Place</h2>
         <button class="modal-close-btn" onclick="closeActivityModal()">&#10005;</button>
       </div>
 
-      <label class="field-label">Activity Name</label>
+      <label class="field-label">Name</label>
       <input type="text" id="activityName" placeholder="e.g. Bike / Hike" maxlength="80" class="meal-input" />
 
-      <label class="field-label">Location</label>
-      <input type="text" id="activityLocation" placeholder="e.g. Monsanto, Lisbon" maxlength="100" class="meal-input" />
-      <label class="field-label">Time <span class="field-opt">(optional)</span></label>
-      <input type="time" id="activityTime" class="meal-input time-input" />
+      <div class="loc-time-row">
+        <div><label class="field-label">Location</label>
+          <input type="text" id="activityLocation" placeholder="e.g. Monsanto" maxlength="100" class="meal-input" /></div>
+        <div><label class="field-label">Time</label>
+          <input type="time" id="activityTime" class="meal-input time-input" /></div>
+      </div>
 
-      <label class="field-label">Description</label>
-      <textarea id="activityDescription" placeholder="Notes about the activity..." class="meal-textarea" rows="3"></textarea>
+      <label class="field-label">Notes</label>
+      <textarea id="activityDescription" placeholder="Notes, hours, tips..." class="meal-textarea" rows="3"></textarea>
 
       <label class="field-label">Distance</label>
       <input type="text" id="activityDistance" placeholder="e.g. 11.31 mi" maxlength="40" class="meal-input" />
@@ -2656,7 +2670,7 @@
 
       <label class="field-label">Location</label>
       <input type="text" id="placesLocation" placeholder="e.g. Belém, Lisbon" maxlength="80" class="meal-input" />
-      <label class="field-label">Time <span class="field-opt">(optional)</span></label>
+      <label class="field-label">Time</label>
       <input type="time" id="placesTime" class="meal-input time-input" />
 
       <label class="field-label">Details</label>
@@ -2967,8 +2981,7 @@
       { key: 'lunch',      label: 'Lunch',       sub: true },
       { key: 'dinner',     label: 'Dinner',      sub: true },
       { key: 'snacks',     label: 'Snacks',      sub: true },
-      { key: 'activities', label: 'Activities' },
-      { key: 'places',     label: 'Places' },
+      { key: 'activities', label: 'Activities / Places' },
       { key: 'lodging',    label: 'Accommodations' },
       { key: 'journal',    label: 'Journal' },
       { key: 'hasPhotos',  label: 'Has Photos' },
@@ -3154,7 +3167,7 @@
       });
 
       // Activities
-      if (e.acts.length) contentCol.appendChild(makeMiniHeader('Activities'));
+      if (e.acts.length) contentCol.appendChild(makeMiniHeader('Activities / Places'));
       e.acts.forEach(a => contentCol.appendChild(makeActivityCard(a.item, a.array, rerender)));
 
       // Places
@@ -3358,7 +3371,7 @@
   }
 
   const categoryIcons = { food: '🍽', activities: '🥾', lodging: '🏨', places: '📍' };
-  const categoryLabels = { food: 'Food', activities: 'Activities', lodging: 'Accommodations', places: 'Places' };
+  const categoryLabels = { food: 'Food', activities: 'Activities / Places', lodging: 'Accommodations', places: 'Activities / Places' };
 
   // Helper: ensure day skeleton exists
   function ensureDaySkeleton(tripId, dayIdx) {
@@ -3962,7 +3975,8 @@
           ? `<p class="order-line"><span class="people-tag who">${esc(lab)}</span> ${esc(l.text)}</p>`
           : `<p>${esc(l.text)}</p>`; }).join('')
       : (item.details || []).map(d => `<p>${esc(d)}</p>`).join('');
-    return `${timeHtml}<h3>${esc(item.name)}</h3>${loc}${badge}${people}${details}`;
+    const notes = (kind === 'food' && item.notes) ? `<p class="entry-notes">${esc(item.notes)}</p>` : '';
+    return `${timeHtml}<h3>${esc(item.name)}</h3>${loc}${badge}${people}${notes}${details}`;
   }
 
   // Photos column, sample map, or an upload box — the only place card media is built
@@ -4036,6 +4050,7 @@
 
   // ── Day view rendering ──
   function renderDayContent() {
+    _migratePlaces(allTripData);
     _viewRerender = _rerenderDayKeepScroll;
     const container = document.getElementById('dayContent');
     container.innerHTML = '';
@@ -4283,7 +4298,7 @@
     container.appendChild(foodSection);
 
     // Activities Section
-    const actSection = makeSection('Activities', body => {
+    const actSection = makeSection('Activities / Places', body => {
       const renderActCards = () => {
         body.querySelectorAll('.card').forEach(c => c.remove());
         const addBtn = body.querySelector('.add-btn');
@@ -4301,24 +4316,7 @@
     }, true);
     container.appendChild(actSection);
 
-    // Places Section
-    const placesSection = makeSection('Places', body => {
-      const renderPlaceCards = () => {
-        body.querySelectorAll('.card').forEach(c => c.remove());
-        const addBtn = body.querySelector('.add-btn');
-        (data.places || []).forEach(item => {
-          const card = makePlaceCard(item, data.places, renderPlaceCards);
-          card.style.display = 'flex'; card.style.alignItems = 'flex-start';
-          card.insertBefore(makeReorderActions(data.places, item, renderPlaceCards), card.firstChild);
-          body.insertBefore(card, addBtn);
-        });
-      };
-      renderPlaceCards();
-      const add = document.createElement('button'); add.className = 'add-btn'; add.title = 'Add place'; add.textContent = '+ Add';
-      add.onclick = () => openPlacesModal(data.places, body);
-      body.appendChild(add);
-    }, true);
-    container.appendChild(placesSection);
+
 
     // Lodging Section — uses trip-level lodging store
     const dayLodging = getLodgingForDay(activeTrip, activeDay);
@@ -4717,8 +4715,7 @@
       [trip.totalDays, 'Days'],
       [travelersVal, 'Travelers'],
       [allMeals.length, 'Meals'],
-      [allActs.length, 'Activities'],
-      [allPlaces.length, 'Places Visited'],
+      [allActs.length, 'Activities / Places'],
       [lodgingCount, 'Accommodations'],
       [totalPhotos, 'Photos'],
       [hlCount, 'Highs & Lows'],
@@ -5007,8 +5004,7 @@
 
     const mainPhotoFilterDefs = [
       { key: 'food',          label: 'Food' },
-      { key: 'activities',    label: 'Activities' },
-      { key: 'places',        label: 'Places' },
+      { key: 'activities',    label: 'Activities / Places' },
       { key: 'lodging',       label: 'Accommodations' },
       { key: 'uncategorized', label: 'Uncategorized' },
     ];
@@ -5031,8 +5027,7 @@
       { key: 'lunch',         label: 'Lunch',       sub: true },
       { key: 'dinner',        label: 'Dinner',      sub: true },
       { key: 'snacks',        label: 'Snacks',      sub: true },
-      { key: 'activities',    label: 'Activities' },
-      { key: 'places',        label: 'Places' },
+      { key: 'activities',    label: 'Activities / Places' },
       { key: 'lodging',       label: 'Accommodations' },
       { key: 'uncategorized', label: 'Uncategorized' },
     ];
@@ -5596,8 +5591,7 @@
       [totalTrips,      'Trips'],
       [totalDaysAll,    'Days Logged'],
       [totalMeals,      'Meals'],
-      [totalActivities, 'Activities'],
-      [totalPlaces,     'Places Visited'],
+      [totalActivities, 'Activities / Places'],
       [totalLodging,    'Accommodations'],
       [totalPhotos,     'Photos'],
     ].forEach(([num, lbl]) => {
@@ -6103,6 +6097,7 @@
       name: name || '(no name)',
       location: document.getElementById('mealLocationDetail').value.trim(),
       time: document.getElementById('mealTime').value || '',
+      notes: document.getElementById('mealNotes').value.trim(),
       lines,
       details: lines.map(_orderLineText),   // plain-text copy used by search, highlights and backups
       images: mealModal_images.map(i => i.dataUrl),
@@ -6424,6 +6419,7 @@
     document.getElementById('mealLocation').value = item.name || '';
     document.getElementById('mealLocationDetail').value = item.location || '';
     document.getElementById('mealTime').value = item.time || '';
+    document.getElementById('mealNotes').value = item.notes || '';
     document.getElementById('mealDupBtn').hidden = false;
     _renderOrderRows(_orderLinesOf(item));
     document.getElementById('mealImageInput').value = '';
@@ -6443,7 +6439,7 @@
     activityModal_catRerender = null;
     activityModal_images = (act.images || []).map(url => ({ dataUrl: url }));
 
-    document.getElementById('activityModalTitle').textContent = 'Edit Activity';
+    document.getElementById('activityModalTitle').textContent = 'Edit Activity / Place';
     document.getElementById('activityModalSaveBtn').textContent = 'Save Changes';
     document.getElementById('activityDayLabel').style.display = '';
     const di = document.getElementById('activityDayInput'); di.style.display = ''; di.value = toInputDate(activeTrip, loc.dayIdx);
@@ -6598,7 +6594,7 @@
     activityModal_images = [];
     activityModal_editItem = null;
 
-    document.getElementById('activityModalTitle').textContent = 'Add Activity';
+    document.getElementById('activityModalTitle').textContent = 'Add Activity / Place';
     document.getElementById('activityModalSaveBtn').textContent = 'Add';
     document.getElementById('activityDayLabel').style.display = 'none';
     document.getElementById('activityDayInput').style.display = 'none';
@@ -6778,7 +6774,7 @@
   }
 
   function closeMealModal() {
-    document.getElementById('mealTime').value = ''; document.getElementById('mealDupBtn').hidden = true;
+    document.getElementById('mealTime').value = ''; document.getElementById('mealNotes').value = ''; document.getElementById('mealDupBtn').hidden = true;
     document.getElementById('mealModalOverlay').classList.remove('open');
     mealModal_editItem = null;
     mealModal_catDay = null;
@@ -7012,6 +7008,18 @@
     };
   }
 
+  // ── v59: Places merged into "Activities / Places" ──
+  function _migratePlaces(all) {
+    Object.values(all || {}).forEach(days => Object.values(days || {}).forEach(d => {
+      if (!d || !Array.isArray(d.places) || !d.places.length) return;
+      d.activities = d.activities || [];
+      d.places.forEach(pl => d.activities.push({
+        name: pl.name || '(no name)', location: pl.location || '', time: pl.time || '',
+        description: (pl.details || []).join('\n'), distance: '', durationH: '', durationM: '', images: pl.images || []
+      }));
+      d.places = [];
+    }));
+  }
   function _deserializeState(state) {
     // Restore Date objects from strings
     if (state.trips) {
@@ -7019,6 +7027,7 @@
         if (t.start) t.start = _parseStart(t.start);
       });
     }
+    _migratePlaces(state.allTripData);
     return state;
   }
 
@@ -7532,7 +7541,7 @@
         const d = days[k]; if (!d) return; const i = +k;
         const dayText = [d.title, d.subtitle, d.journal].filter(Boolean);
         if (dayText.length) rows.push({ id, i, kind: 'day', title: d.title || 'Journal', fields: dayText, tripName, date: fmt(id, i) });
-        MEAL_KEYS.forEach(mk => (d.food && d.food[mk] || []).forEach(it => rows.push({ id, i, kind: 'food', sub: mk, item: it, title: it.name, fields: [it.name, it.location, ...(it.details || []), ...(it.people || [])], tripName, date: fmt(id, i) })));
+        MEAL_KEYS.forEach(mk => (d.food && d.food[mk] || []).forEach(it => rows.push({ id, i, kind: 'food', sub: mk, item: it, title: it.name, fields: [it.name, it.location, it.notes, ...(it.details || []), ...(it.people || [])], tripName, date: fmt(id, i) })));
         (d.activities || []).forEach(it => rows.push({ id, i, kind: 'activity', item: it, title: it.name, fields: [it.name, it.location, it.description], tripName, date: fmt(id, i) }));
         (d.places || []).forEach(it => rows.push({ id, i, kind: 'place', item: it, title: it.name, fields: [it.name, it.location, ...(it.details || [])], tripName, date: fmt(id, i) }));
       });
@@ -7649,8 +7658,7 @@
       <button type="button" data-add="lunch">Lunch</button>
       <button type="button" data-add="dinner">Dinner</button>
       <button type="button" data-add="snacks">Snacks</button>
-      <button type="button" data-add="activity">Activity</button>
-      <button type="button" data-add="place">Place</button>
+      <button type="button" data-add="activity" style="grid-column: 1 / -1;">Activity / Place</button>
       <button type="button" data-add="stay">Stay</button>
       <button type="button" data-add="photos">Photos</button>
     </div>
