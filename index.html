@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- myTrips v64 -->
+<!-- myTrips v65 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>myTrips v64</title>
+<title>myTrips v65</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -2449,7 +2449,23 @@
     .mobile-tabs button { font-size: 0.72rem; padding-left: 0; padding-right: 0; }
   }
 
-  /* ══ v61: Missing section + share button ══ */
+  /* ══ v65: lesson reorder, All Lessons, ══ */
+  .lessons-mv { flex: 0 0 auto; display: flex; flex-direction: column; }
+  .lessons-mv button { width: 30px; height: 22px; border: none; background: none; color: var(--text-muted); font-size: 0.7rem; line-height: 1; cursor: pointer; padding: 0; border-radius: 5px; }
+  .lessons-mv button:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+  .lessons-mv button:disabled { opacity: 0.25; cursor: default; }
+  .alllessons-filter { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card, #fff); font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--text); margin: 0 0 16px; }
+  .alllessons-trip { margin: 0 0 22px; }
+  .alllessons-trip h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0 0 8px; font-family: 'Playfair Display', serif; font-size: 1.08rem; }
+  .alllessons-trip h3 a { font-family: 'DM Sans', sans-serif; font-size: 0.76rem; font-weight: 600; color: var(--accent-dark); cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .alllessons-trip h3 a:hover { text-decoration: underline; }
+  .alllessons-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .alllessons-list li { display: flex; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card, #fff); font-size: 0.93rem; line-height: 1.45; overflow-wrap: anywhere; }
+  .alllessons-list li::before { content: ''; flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-top: 0.6rem; }
+  #allLessonsBtn { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.07); border-radius: 0; font-weight: 600; }
+  @media (max-width: 760px) { .alllessons-filter { font-size: 16px; } }
+
+  /* ══ v61: Missing section + share button ══
   .summary-danger-row { gap: 10px; flex-wrap: wrap; }
   .missing-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px 14px 12px; }
   .missing-head { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin: 12px 0 6px; }
@@ -2472,7 +2488,7 @@
 
 <header>
   <button class="menu-toggle" id="menuToggle" aria-label="Show menu" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
-  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v64</span></h1>
+  <h1>my<span>Trips</span> <span style="font-size:0.65rem; font-weight:400; color:var(--text-muted); font-family:'DM Sans',sans-serif; letter-spacing:0.04em; vertical-align:baseline; opacity:0.6; position:relative; top:-0.15em;">v65</span></h1>
   <button class="search-btn" id="searchBtn" type="button" aria-label="Search all trips" onclick="openSearch()">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
@@ -2513,7 +2529,8 @@
         <button onclick="showLessonsView(this, 'nz', 'New Zealand 2025')">Lessons Learned</button>
       </div>
     </div>
-    <div class="sort-row" style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.07);">
+    <button class="alllessons-btn" id="allLessonsBtn" onclick="showAllLessonsView(this)">All Lessons</button>
+    <div class="sort-row" style="padding-top:16px;">
       <span class="sort-label">Sort</span>
       <select class="sort-select" id="tripSortSelect" onchange="sortTrips(this.value)">
         <option value="newest">Newest first</option>
@@ -5275,7 +5292,7 @@
 
     // Re-insert sorted groups before the sort-row at the bottom
     const sortRow = sidebar.querySelector('.sort-row');
-    groups.forEach(g => sidebar.insertBefore(g, sortRow));
+    groups.forEach(g => sidebar.insertBefore(g, document.getElementById('allLessonsBtn') || sortRow));
   }
 
 
@@ -5550,6 +5567,70 @@
   }
 
 
+  // ══ v65: All Lessons — every trip's lessons on one page ══
+  function showAllLessonsView(btn) {
+    currentView = 'lessons-all';
+    document.getElementById('dayContent').style.display = 'none';
+    document.querySelector('.date-nav').style.display = 'none';
+    document.getElementById('categoryView').classList.remove('active');
+    document.getElementById('summaryView').classList.remove('active');
+    document.getElementById('accountView').classList.remove('active');
+    document.getElementById('photosView').classList.remove('active');
+    document.getElementById('bestwrostView').classList.add('active');
+    document.querySelectorAll('aside button').forEach(b => b.classList.remove('active'));
+    (btn || document.getElementById('allLessonsBtn'))?.classList.add('active');
+    renderAllLessonsView();
+  }
+  function renderAllLessonsView() {
+    const container = document.getElementById('bestwrostView');
+    container.innerHTML = '';
+    const hdr = document.createElement('div'); hdr.className = 'cat-header-sticky';
+    const row = document.createElement('div'); row.className = 'cat-header';
+    const t = document.createElement('div'); t.className = 'cat-title'; t.textContent = 'All Lessons';
+    const st = document.createElement('div'); st.className = 'cat-subtitle'; st.textContent = 'Every trip';
+    row.appendChild(t); row.appendChild(st); hdr.appendChild(row); container.appendChild(hdr);
+    const body = document.createElement('div'); body.className = 'bw-scroll-body'; container.appendChild(body);
+    const wrap = document.createElement('div'); wrap.className = 'lessons-wrap'; body.appendChild(wrap);
+    const filter = document.createElement('input'); filter.type = 'search'; filter.className = 'alllessons-filter'; filter.placeholder = 'Filter lessons…'; filter.setAttribute('aria-label', 'Filter lessons');
+    wrap.appendChild(filter);
+    const out = document.createElement('div'); wrap.appendChild(out);
+    const trip = id => (allTripMeta[id] && allTripMeta[id].title) || trips[id].name || id;
+    const build = () => {
+      const q = filter.value.trim().toLowerCase();
+      out.innerHTML = '';
+      let total = 0, emptyTrips = 0;
+      // same order as the sidebar
+      const ids = [...document.querySelectorAll('#sidebar .trip-group')].map(g => g.id.replace('group-', '')).filter(id => trips[id]);
+      ids.forEach(id => {
+        const all = ((allTripMeta[id] && allTripMeta[id].lessons) || []).filter(x => String(x).trim());
+        if (!all.length) { emptyTrips++; return; }
+        const items = q ? all.filter(x => String(x).toLowerCase().includes(q)) : all;
+        if (!items.length) return;
+        total += items.length;
+        const sec = document.createElement('section'); sec.className = 'alllessons-trip';
+        const h = document.createElement('h3'); const nm = document.createElement('span'); nm.textContent = trip(id) + ' (' + items.length + ')';
+        const a = document.createElement('a'); a.textContent = 'Open'; a.setAttribute('role', 'button'); a.tabIndex = 0;
+        const open = () => { const sub = document.getElementById('subnav-' + id); _activateTrip(id); if (sub && sub.children[4]) sub.children[4].click(); };
+        a.onclick = open; a.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
+        h.appendChild(nm); h.appendChild(a); sec.appendChild(h);
+        const ul = document.createElement('ul'); ul.className = 'alllessons-list';
+        items.forEach(x => { const li = document.createElement('li'); li.textContent = x; ul.appendChild(li); });
+        sec.appendChild(ul); out.appendChild(sec);
+      });
+      if (!total) {
+        const p = document.createElement('p'); p.className = 'lessons-empty';
+        p.textContent = q ? 'No lessons match that filter.' : 'No lessons yet. Open a trip and use its Lessons Learned page to add some.';
+        out.appendChild(p);
+      } else if (!q && emptyTrips) {
+        const p = document.createElement('p'); p.className = 'lessons-empty';
+        p.textContent = emptyTrips + (emptyTrips === 1 ? ' trip has' : ' trips have') + ' no lessons yet.';
+        out.appendChild(p);
+      }
+    };
+    filter.addEventListener('input', build);
+    build();
+  }
+
   // ══ v64: Lessons Learned — a simple bullet list per trip (stored on the trip's meta) ══
   function getLessons(tripId) {
     const m = getTripMeta(tripId);
@@ -5600,9 +5681,17 @@
         ta.addEventListener('input', () => { items[i] = ta.value; grow(ta); save(); });
         ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ta.blur(); } });
         ta.addEventListener('blur', () => { if (!ta.value.trim()) remove(i); else { items[i] = ta.value.trim(); } });
+        const mv = document.createElement('div'); mv.className = 'lessons-mv';
+        [['▲', -1, 'Move up'], ['▼', 1, 'Move down']].forEach(([ch, d, lab]) => {
+          const b = document.createElement('button'); b.type = 'button'; b.textContent = ch; b.setAttribute('aria-label', lab);
+          b.disabled = (d < 0 && i === 0) || (d > 0 && i === items.length - 1);
+          b.onclick = () => { const j = i + d; [items[i], items[j]] = [items[j], items[i]]; build(); save();
+            const nb = list.children[j] && list.children[j].querySelectorAll('.lessons-mv button')[d < 0 ? 0 : 1]; if (nb && !nb.disabled) nb.focus(); else if (list.children[j]) list.children[j].querySelectorAll('.lessons-mv button:not(:disabled)')[0]?.focus(); };
+          mv.appendChild(b);
+        });
         const del = document.createElement('button'); del.type = 'button'; del.className = 'lessons-del'; del.setAttribute('aria-label', 'Delete lesson'); del.textContent = '✕';
         del.onclick = () => remove(i);
-        li.appendChild(ta); li.appendChild(del); list.appendChild(li);
+        li.appendChild(ta); li.appendChild(mv); li.appendChild(del); list.appendChild(li);
       });
       requestAnimationFrame(() => list.querySelectorAll('textarea').forEach(grow));
     };
@@ -6678,6 +6767,7 @@
     if (currentView === 'summary') { const tb = document.querySelector(`#group-${id} .trip-btn`); if (tb) showTripSummary(tb, id); }
     else if (currentView === 'bestworst' && sub) sub.children[3].click();
     else if (currentView === 'lessons' && sub) sub.children[4].click();
+    else if (currentView === 'lessons-all') renderAllLessonsView();
     else if (currentView === 'photos' && sub) sub.children[2].click();
     else { if (currentView === 'day') renderDateTabs(); _afterChange(); }
   }
@@ -7806,6 +7896,7 @@
   document.addEventListener('input', scheduleSave, true);
   document.addEventListener('change', scheduleSave, true);
   document.addEventListener('click', scheduleSave, true);
+  document.addEventListener('click', () => setTimeout(_rememberPlace, 0), true);
   // Final save when the tab is hidden or closed
   const _flushSave = () => { clearTimeout(_saveTimer); _saveToIDB(); };
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') _flushSave(); });
@@ -7831,7 +7922,7 @@
   // Close the drawer after choosing a page from it
   document.getElementById('sidebar').addEventListener('click', e => {
     if (!window.matchMedia('(max-width: 760px)').matches) return;
-    if (e.target.closest('.trip-btn, .trip-subnav button')) toggleMobileMenu(false);
+    if (e.target.closest('.trip-btn, .trip-subnav button, #allLessonsBtn')) toggleMobileMenu(false);
   });
   document.getElementById('userBadge').addEventListener('click', () => toggleMobileMenu(false));
   window.matchMedia('(max-width: 760px)').addEventListener('change', e => { if (!e.matches) toggleMobileMenu(false); });
@@ -7840,11 +7931,12 @@
   // Mobile section tabs
   const _tabMap = { summary: 'summary', day: 'daily', entries: 'timeline', photos: 'photos', bestworst: 'hl', lessons: 'lessons' };
   function _updateMobileTabs() {
-    const has = !!(activeTrip && trips[activeTrip]) && currentView !== 'account';
+    const has = !!(activeTrip && trips[activeTrip]) && currentView !== 'account' && currentView !== 'lessons-all';
     document.body.classList.toggle('has-trip', has);
     document.body.classList.toggle('view-day', has && currentView === 'day');
     const cur = _tabMap[currentView];
     document.querySelectorAll('#mobileTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === cur));
+    _rememberPlace();
   }
   document.getElementById('mobileTabs').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b || !activeTrip) return;
@@ -7858,7 +7950,7 @@
     const sub = document.getElementById('subnav-' + id);
     if (sub && sub.children[idx]) sub.children[idx].click();
   });
-  ['showTripSummary','showTimelineView','showEntriesView','showPhotosView','showBestWorstView','showLessonsView','showAccountView','showDayView']
+  ['showTripSummary','showTimelineView','showEntriesView','showPhotosView','showBestWorstView','showLessonsView','showAllLessonsView','showAccountView','showDayView']
     .forEach(n => {
       const orig = window[n]; if (typeof orig !== 'function') return;
       window[n] = function(...a) { const r = orig.apply(this, a); _updateMobileTabs(); return r; };
@@ -7890,8 +7982,44 @@
     photos.addEventListener('change', () => { const f = Array.from(photos.files); photos.value = ''; _addDayPhotosAutoSort(f, activeDay); });
   });
 
+
+  // ══ v65: remember where you were (per device) ══
+  const _PLACE_KEY = 'myTrips.lastPlace';
+  let _placeReady = false;
+  const _savedPlace = (() => { try { return JSON.parse(localStorage.getItem(_PLACE_KEY) || 'null'); } catch (e) { return null; } })();
+  function _rememberPlace() {
+    if (!_placeReady) return;
+    try {
+      const p = { view: currentView };
+      if (!['account', 'lessons-all'].includes(currentView)) { if (!activeTrip || !trips[activeTrip]) return; p.trip = activeTrip; }
+      if (currentView === 'day') p.day = activeDay;
+      localStorage.setItem(_PLACE_KEY, JSON.stringify(p));
+    } catch (e) {}
+  }
+  function _restorePlace() {
+    const p = _savedPlace; if (!p || !p.view) return false;
+    try {
+      if (p.view === 'account') { showAccountView(); return true; }
+      if (p.view === 'lessons-all') { showAllLessonsView(); return true; }
+      if (!p.trip || !trips[p.trip]) return false;
+      const id = p.trip, sub = document.getElementById('subnav-' + id);
+      if (p.view === 'summary') { const tb = document.querySelector(`#group-${id} .trip-btn`); if (!tb) return false; showTripSummary(tb, id); return true; }
+      const idx = { day: 0, entries: 1, photos: 2, bestworst: 3, lessons: 4 }[p.view];
+      if (idx == null || !sub || !sub.children[idx]) return false;
+      sub.children[idx].click();
+      if (p.view === 'day' && Number.isInteger(p.day)) {
+        activeDay = Math.max(0, Math.min(trips[id].totalDays - 1, p.day));
+        renderDateTabs(); renderDayContent();
+        document.querySelector('.date-tab.active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+      }
+      return true;
+    } catch (e) { return false; }
+  }
+
   // ══ Open to today when a trip is under way ══
   function _openToTodayOrAccount() {
+    const _fin = () => { _placeReady = true; _rememberPlace(); };
+    if (_restorePlace()) { _fin(); return; }
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     for (const id of Object.keys(trips)) {
@@ -7904,15 +8032,18 @@
         renderDateTabs();
         renderDayContent();
         document.querySelector('.date-tab.active')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+        _fin();
         return;
       }
     }
     showAccountView();
+    _fin();
   }
 
 
   // ══ Swipe left/right on Daily to change day ══
   function _goDay(i) {
+    setTimeout(_rememberPlace, 0);
     if (!trips[activeTrip] || i < 0 || i >= trips[activeTrip].totalDays) return;
     activeDay = i;
     renderDateTabs();
